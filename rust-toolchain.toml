@@ -1,0 +1,6 @@
+[toolchain]
+channel = "nightly"
+# channel = "stable"
+# components = [ "rustfmt", "rustc-dev" ]
+# targets = [ "wasm32-unknown-unknown", "nightly-x86_64-pc-windows-msvc" ]
+# profile = "minimal"

@@ -1,0 +1,14 @@
+[package]
+authors = ["Simon Cambier <simon.cambier@protonmail.com>"]
+edition = "2018"
+name = "roguelike-glsp"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+getrandom = {version = "0.2", features = ["js"]}
+glsp = "0.2.0"
+lazy_static = "1.4.0"
+rltk = {version = "0.8.0"}
+rust-embed = "5.9.0"
