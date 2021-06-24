@@ -1,21 +1,33 @@
-use std::sync::Mutex;
+mod glsp_interpreter;
 
 use glsp::Val;
-use lazy_static::lazy_static;
-use rltk::{GameState, Rltk};
-mod glsp_interpreter;
 use glsp_interpreter::*;
+use lazy_static::lazy_static;
+use rltk::{GameState, Rltk, VirtualKeyCode};
+use std::{fs::read_to_string, sync::Mutex};
+
+const WIDTH: i32 = 80;
+const HEIGHT: i32 = 50;
 
 lazy_static! {
     pub static ref QUEUE: Mutex<Vec<GlspCommand>> = Mutex::new(vec![]);
+    pub static ref KEYPRESSED: Mutex<Option<VirtualKeyCode>> = Mutex::new(None);
 }
 
 struct State {
     interpreter: GlspInterpreter,
-    code: String,
 }
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
+        match ctx.key {
+            Some(key) => {
+                KEYPRESSED.lock().unwrap().replace(key);
+            },
+            None => {
+                KEYPRESSED.lock().unwrap().take();
+            },
+        }
+
         self.interpreter.runtime.run(|| {
             let update = match glsp::global::<_, Val>("run") {
                 Ok(Val::GFn(update)) => update,
@@ -25,7 +37,7 @@ impl GameState for State {
                 }
                 Err(e) => {
                     let msg = "run is not defined";
-                    panic!("{:}", e);
+                    panic!("{:}{:}", msg, e);
                 }
             };
             let _: Val = match glsp::call(&update, ()) {
@@ -51,25 +63,27 @@ impl GameState for State {
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
-    let context = RltkBuilder::simple80x50()
+    let context = RltkBuilder::simple(WIDTH, HEIGHT)
+        .unwrap()
+        .with_tile_dimensions(16, 16)
         .with_title("Roguelike Tutorial")
         .build()?;
 
-    let code = String::from(
-        r#"
-        (let x 0)
-        (defn run ()
-            (cls)
-            (print x 1 "Hello RLTK World")
-            (inc! x)
-        )
-        "#,
-    );
+    let code = match read_to_string("./game/main.lisp") {
+        Ok(code) => code,
+        Err(e) => panic!("{:?}", e),
+    };
 
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
+        // api
         glsp::bind_rfn("cls", &cls)?;
         glsp::bind_rfn("print", &print)?;
+        glsp::bind_rfn("key?", &key_pressed)?;
+
+        // constants
+        glsp::bind_global(":width", WIDTH)?;
+        glsp::bind_global(":height", HEIGHT)?;
 
         // parse the code
         let vals = glsp::parse_all(&code, Some("game"))?;
@@ -78,6 +92,16 @@ fn main() -> rltk::BError {
         glsp::eval_multi(&vals, None)?;
         Ok(())
     });
-    let gs = State { interpreter, code };
+    let gs = State { interpreter };
     rltk::main_loop(context, gs)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn start_watcher(x: i32) {
+    // Do nothing
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn start_watcher(x: i32) {
+    // Watch for changes in the gamelisp code
 }

@@ -10,5 +10,8 @@ version = "0.1.0"
 getrandom = {version = "0.2", features = ["js"]}
 glsp = "0.2.0"
 lazy_static = "1.4.0"
+notify = "4.0.17"
 rltk = {version = "0.8.0"}
 rust-embed = "5.9.0"
+strum = "0.21"
+strum_macros = "0.21"

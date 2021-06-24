@@ -1,0 +1,7 @@
+(let player_x (/ :width 2))
+(let player_y (/ :height 2))
+(defn run ()
+    (cls)
+    (print player_x player_y "@")
+    (when (key? "Left") (dec! player_x))
+)
