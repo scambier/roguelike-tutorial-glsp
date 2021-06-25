@@ -1,0 +1,27 @@
+(include "game/ecs.glsp")
+
+;; (defstruct Renderable
+;;     glyph)
+
+;; (defstruct Position
+;;     x y)
+
+(let Position (Component))
+(prn Position)
+;; (let pos [Position 'new (tab ('x 20) ('y 20))])
+
+(let player_x (/ :width 2))
+(let player_y (/ :height 2))
+
+(let world (World))
+(let player (.add-entity world "fuck" "that" "shit"))
+(prn player)
+
+(defn run ()
+    (cls)
+    (print player_x player_y "@")
+    (when (key? "Up") (dec! player_y))
+    (when (key? "Down") (inc! player_y))
+    (when (key? "Left") (dec! player_x))
+    (when (key? "Right") (inc! player_x))
+)

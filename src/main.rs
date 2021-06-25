@@ -69,7 +69,7 @@ fn main() -> rltk::BError {
         .with_title("Roguelike Tutorial")
         .build()?;
 
-    let code = match read_to_string("./game/main.lisp") {
+    let code = match read_to_string("./game/main.glsp") {
         Ok(code) => code,
         Err(e) => panic!("{:?}", e),
     };
@@ -96,12 +96,12 @@ fn main() -> rltk::BError {
     rltk::main_loop(context, gs)
 }
 
-#[cfg(target_arch = "wasm32")]
-fn start_watcher(x: i32) {
-    // Do nothing
-}
+// #[cfg(target_arch = "wasm32")]
+// fn start_watcher(x: i32) {
+//     // Do nothing
+// }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn start_watcher(x: i32) {
-    // Watch for changes in the gamelisp code
-}
+// #[cfg(not(target_arch = "wasm32"))]
+// fn start_watcher(x: i32) {
+//     // Watch for changes in the gamelisp code
+// }

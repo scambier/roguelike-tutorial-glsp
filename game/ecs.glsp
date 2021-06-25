@@ -1,0 +1,31 @@
+;; (struct ComponentFactory
+;;     @_name
+;;     @_id)
+
+(let cmp-factory-id 0)
+(defn Component ()
+    (inc! cmp-factory-id)
+    (tab
+        ('_id cmp-factory-id)
+        ('new (fn (src)
+            (extend! dst src (_id cmp-factory_id))
+        ))
+    )
+)
+
+(defclass World
+    (field counter)
+    (field entities)
+
+    (init ()
+        (= @counter 0)
+        (= @entities arr)
+    )
+
+    (met add-entity (..components)
+        (for cmp in components
+            (prn cmp))
+        (inc! @counter)
+        @counter
+    )
+)

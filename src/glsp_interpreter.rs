@@ -32,7 +32,7 @@ pub struct GlspInterpreter {
 impl GlspInterpreter {
     pub fn new() -> Self {
         // Sandboxed builder forbids access to filesystem
-        let builder = RuntimeBuilder::new().sandboxed(true);
+        let builder = RuntimeBuilder::new().sandboxed(false);
         GlspInterpreter {
             runtime: builder.build(),
         }
