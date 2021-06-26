@@ -32,12 +32,10 @@ impl GameState for State {
             let update = match glsp::global::<_, Val>("run") {
                 Ok(Val::GFn(update)) => update,
                 Ok(val) => {
-                    let msg = format!("Invalid update value {}", val);
-                    panic!("{:}", msg);
+                    panic!("Invalid run callback:\n{:}", val);
                 }
                 Err(e) => {
-                    let msg = "run is not defined";
-                    panic!("{:}{:}", msg, e);
+                    panic!("Cannot compile glsp code:\n{:}", e);
                 }
             };
             let _: Val = match glsp::call(&update, ()) {
@@ -65,7 +63,7 @@ fn main() -> rltk::BError {
     use rltk::RltkBuilder;
     let context = RltkBuilder::simple(WIDTH, HEIGHT)
         .unwrap()
-        .with_tile_dimensions(16, 16)
+        // .with_tile_dimensions(16, 16)
         .with_title("Roguelike Tutorial")
         .build()?;
 

@@ -1,31 +1,41 @@
-;; (struct ComponentFactory
-;;     @_name
-;;     @_id)
-
-(let cmp-factory-id 0)
-(defn Component ()
-    (inc! cmp-factory-id)
-    (tab
-        ('_id cmp-factory-id)
-        ('new (fn (src)
-            (extend! dst src (_id cmp-factory_id))
-        ))
-    )
-)
+;; 'a must contain all items of iterator 'it
+(let arr-contains-arr?
+    (fn (a it)
+        (all? (fn (needle) (position a (fn (e) (eq? e needle)))) it)))
 
 (defclass World
     (field counter)
     (field entities)
+    (field resources)
 
     (init ()
         (= @counter 0)
-        (= @entities arr)
+        (= @entities (tab))
+        (= @resources (tab))
     )
 
+    (met get-res (key)
+        [@resources key])
+
+    (met set-res (key val)
+        (= [@resources key] val))
+
     (met add-entity (..components)
-        (for cmp in components
-            (prn cmp))
         (inc! @counter)
-        @counter
-    )
+        (= [@entities @counter] components)
+        @counter)
+
+    (met query (..structs)
+        (let entities (tab))
+
+        (for (entity components) in @entities
+            (let it (iter components))
+            (let mapped (arr ..(map (fn (cmp) (class-of cmp)) it)))
+            (when (arr-contains-arr? mapped (iter structs))
+                (= [entities entity] components)))
+        entities)
+
+    (met get-cmp (entity type)
+        (let components (iter [@entities entity]))
+        (find (fn (cmp) (eq? (class-of cmp) type) ) components ))
 )

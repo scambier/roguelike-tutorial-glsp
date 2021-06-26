@@ -41,6 +41,7 @@ impl GlspInterpreter {
 
 #[derive(Debug, Hash, Ord, PartialOrd, PartialEq, Eq, Clone, Copy, EnumString)]
 #[repr(u32)]
+#[strum(ascii_case_insensitive)]
 pub enum StrKeyCode {
     /// The '1' key over the letters.
     Key1,
