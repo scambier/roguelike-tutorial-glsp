@@ -1,8 +1,3 @@
-;; 'a must contain all items of iterator 'it
-(let arr-contains-arr?
-    (fn (a it)
-        (all? (fn (needle) (position a (fn (e) (eq? e needle)))) it)))
-
 (defclass World
     (field counter)
     (field entities)
@@ -11,8 +6,7 @@
     (init ()
         (= @counter 0)
         (= @entities (tab))
-        (= @resources (tab))
-    )
+        (= @resources (tab)))
 
     (met get-res (key)
         [@resources key])
@@ -25,17 +19,35 @@
         (= [@entities @counter] components)
         @counter)
 
+    ; query the world to get entities with corresponding components
+    ; TODO: optimize
     (met query (..structs)
-        (let entities (tab))
+        ; get entities that match the required structs
+        (let filtered (->
+            (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs))
+            (filter @entities)))
 
-        (for (entity components) in @entities
-            (let it (iter components))
-            (let mapped (arr ..(map (fn (cmp) (class-of cmp)) it)))
-            (when (arr-contains-arr? mapped (iter structs))
-                (= [entities entity] components)))
-        entities)
+        ; only keep the required components
+        (= filtered (->
+            (fn (e) (arr [e 0]
+                (filter (fn (c) (index-of structs (class-of c))) [e 1])))
+            (map filtered)))
+
+
+        ; put them in the correct order
+        (let ordered (tab))
+        (for (k v) in filtered
+            (= v (arr ..v))
+            (let o (sort v (fn (a b)
+                (let diff (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
+                (when (< diff 0) (return '<))
+                (when (> diff 0) (return '>))
+                '==
+                )))
+            (= [ordered k] o))
+
+        ordered)
 
     (met get-cmp (entity type)
         (let components (iter [@entities entity]))
-        (find (fn (cmp) (eq? (class-of cmp) type) ) components ))
-)
+        (find (fn (cmp) (eq? (class-of cmp) type)) components )))

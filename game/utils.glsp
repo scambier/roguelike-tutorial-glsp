@@ -1,0 +1,10 @@
+; checks if `a` contains all items of `b`
+; TODO: rewrite in rust?
+(defn arr-contains-arr? (a b)
+    (= a (if (iter? a) (arr ..a) a)) ; converts iterables to arrays first
+    (= b (if (iter? b) (arr ..b) b))
+    (all? (fn (needle) (index-of a needle)) b))
+
+; like `(position haystack needle)` but without the callback
+(defn index-of (haystack needle)
+    (position haystack (fn (e) (eq? e needle))))

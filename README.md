@@ -33,5 +33,9 @@ Then, simply type `cargo run` to execute it.
 
 ### Rust/GameLisp
 
-- [ ] Try making a barebones ECS
+- [x] Make a barebones ECS
+	- [ ] Optimize
+	- [ ] Implement cache
 - [ ] Learn how to use GameLisp features (mixins, classmacros, states)
+- [ ] Web build (currently broken)
+- [ ] Live reload of glsp code

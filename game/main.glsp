@@ -1,3 +1,4 @@
+(include "game/utils.glsp")
 (include "game/ecs.glsp")
 
 (defstruct Renderable
@@ -9,11 +10,14 @@
 (defstruct Enemy
     x y)
 
+(defstruct Player)
+
 ; init world
 (let world (World))
 
 ; init player and save its ref
 (let player (.add-entity world
+    (Player)
     (Renderable:new "@")
     (Position:new (/ :width 2) (/ :height 2))))
 
@@ -21,10 +25,7 @@
 
 ; rendering system
 (defn sys:render (world)
-    (let entities (.query world Position Renderable))
-    (for (entity components) in entities
-        (let render (.get-cmp world entity Renderable))
-        (let pos (.get-cmp world entity Position))
+    (for (entity (pos render)) in (.query world Position Renderable)
         (print [pos 'x] [pos 'y] [render 'glyph])))
 
 ; input manager
