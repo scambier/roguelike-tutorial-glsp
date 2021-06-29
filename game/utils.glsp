@@ -8,3 +8,10 @@
 ; like `(position haystack needle)` but without the callback
 (defn index-of (haystack needle)
     (position haystack (fn (e) (eq? e needle))))
+
+; converts a value <0 >0 ==0 to symbols '< '> '==
+; useful for `(sort)`
+(defn gt-lt (val)
+    (when (< val 0) (return '<))
+    (when (> val 0) (return '>))
+    '==)

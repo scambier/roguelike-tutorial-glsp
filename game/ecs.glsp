@@ -20,30 +20,25 @@
         @counter)
 
     ; query the world to get entities with corresponding components
-    ; TODO: optimize
+    ; TODO: implement some caching
     (met query (..structs)
-        ; get entities that match the required structs
-        (let filtered (->
-            (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs))
-            (filter @entities)))
-
-        ; only keep the required components
-        (= filtered (->
-            (fn (e) (arr [e 0]
-                (filter (fn (c) (index-of structs (class-of c))) [e 1])))
-            (map filtered)))
-
+        (let filtered (->>
+            @entities
+            ; get entities that match the required structs
+            (filter (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs)))
+            ; only keep the required components
+            (map (fn (e) (arr [e 0] (
+                filter (fn (c) (index-of structs (class-of c))) [e 1])
+            )))
+        ))
 
         ; put them in the correct order
         (let ordered (tab))
         (for (k v) in filtered
-            (= v (arr ..v))
-            (let o (sort v (fn (a b)
-                (let diff (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
-                (when (< diff 0) (return '<))
-                (when (> diff 0) (return '>))
-                '==
-                )))
+            (let o (sort (arr ..v) (fn (a b)
+                ; https://stackoverflow.com/a/44063445
+                (gt-lt (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
+            )))
             (= [ordered k] o))
 
         ordered)
