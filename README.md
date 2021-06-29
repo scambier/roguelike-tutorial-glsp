@@ -17,7 +17,7 @@ Then, simply type `cargo run` to execute it.
 ### Tutorial
 
 - [x] Part 0 - Setting up
-- [x] Part 1 - Drawing the ‘@’ symbol and moving it around
+- [x] [Part 1](https://github.com/scambier/roguelike-tutorial-glsp/tree/2c2947a1557b69e87e5a94225f5c4964c90af878) - Drawing the ‘@’ symbol and moving it around
 - [ ] Part 2 - The generic Entity, the render functions, and the map
 - [ ] Part 3 - Generating a dungeon
 - [ ] Part 4 - Field of view
