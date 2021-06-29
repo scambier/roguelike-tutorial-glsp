@@ -22,10 +22,10 @@ impl GameState for State {
         match ctx.key {
             Some(key) => {
                 KEYPRESSED.lock().unwrap().replace(key);
-            },
+            }
             None => {
                 KEYPRESSED.lock().unwrap().take();
-            },
+            }
         }
 
         self.interpreter.runtime.run(|| {
@@ -53,6 +53,7 @@ impl GameState for State {
             match command {
                 GlspCommand::Cls => ctx.cls(),
                 GlspCommand::Print { x, y, s } => ctx.print(*x, *y, s),
+                GlspCommand::Exit => ctx.quit(),
             }
         }
         QUEUE.lock().unwrap().clear();
@@ -78,6 +79,7 @@ fn main() -> rltk::BError {
         glsp::bind_rfn("cls", &cls)?;
         glsp::bind_rfn("print", &print)?;
         glsp::bind_rfn("key?", &key_pressed)?;
+        glsp::bind_rfn("exit", &exit)?;
 
         // constants
         glsp::bind_global(":width", WIDTH)?;

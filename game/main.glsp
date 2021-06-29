@@ -36,6 +36,7 @@
     (when (key? "down") (inc! [pos 'y]))
     (when (key? "left") (dec! [pos 'x]))
     (when (key? "right") (inc! [pos 'x]))
+    (when (key? "escape") (exit))
 )
 
 (defn run ()

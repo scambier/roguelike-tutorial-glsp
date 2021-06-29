@@ -1,4 +1,4 @@
-use crate::{QUEUE, KEYPRESSED};
+use crate::{KEYPRESSED, QUEUE};
 use glsp::prelude::*;
 use std::str::FromStr;
 use strum_macros::EnumString;
@@ -6,6 +6,7 @@ use strum_macros::EnumString;
 pub enum GlspCommand {
     Cls,
     Print { x: i32, y: i32, s: String },
+    Exit,
 }
 
 pub fn cls() {
@@ -23,6 +24,9 @@ pub fn key_pressed(k: String) -> bool {
         (Err(_), None) => false,
         (Err(_), Some(_)) => false,
     }
+}
+pub fn exit() {
+    QUEUE.lock().unwrap().push(GlspCommand::Exit);
 }
 
 pub struct GlspInterpreter {
