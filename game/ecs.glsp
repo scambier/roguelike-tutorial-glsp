@@ -8,10 +8,10 @@
         (= @entities (tab))
         (= @resources (tab)))
 
-    (met get-res (key)
+    (met fetch (key)
         [@resources key])
 
-    (met set-res (key val)
+    (met save (key val)
         (= [@resources key] val))
 
     (met add-entity (..components)
@@ -43,6 +43,7 @@
 
         ordered)
 
+    ; TODO: accept syms as entities
     (met get-cmp (entity type)
         (let components (iter [@entities entity]))
-        (find (fn (cmp) (eq? (class-of cmp) type)) components )))
+        (find (fn (cmp) (eq? (class-of cmp) type)) components)))
