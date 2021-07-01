@@ -6,8 +6,9 @@ use api::GlspCommand;
 use glsp::{RClassBuilder, Val};
 use glsp_interpreter::*;
 use lazy_static::lazy_static;
+use parking_lot::Mutex;
 use rltk::{GameState, RandomNumberGenerator, Rltk, VirtualKeyCode};
-use std::{fs::read_to_string, sync::Mutex};
+use std::{fs::read_to_string};
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
@@ -24,10 +25,10 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
         match ctx.key {
             Some(key) => {
-                KEYPRESSED.lock().unwrap().replace(key);
+                KEYPRESSED.lock().replace(key);
             }
             None => {
-                KEYPRESSED.lock().unwrap().take();
+                KEYPRESSED.lock().take();
             }
         }
 
@@ -52,7 +53,7 @@ impl GameState for State {
             Ok(())
         });
 
-        for command in QUEUE.lock().unwrap().iter() {
+        for command in QUEUE.lock().iter() {
             // iterate commands to call rust functions
             match command {
                 GlspCommand::Cls => ctx.cls(),
@@ -66,7 +67,7 @@ impl GameState for State {
                 GlspCommand::Exit => ctx.quit(),
             }
         }
-        QUEUE.lock().unwrap().clear();
+        QUEUE.lock().clear();
 
         ctx.print(0, 0, ctx.fps);
     }
@@ -102,10 +103,10 @@ fn main() -> rltk::BError {
         glsp::bind_rfn("Color", &api::rgb_color)?;
 
         // rng
+        glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
         RClassBuilder::<RandomNumberGenerator>::new()
             .met("roll-dice", &RandomNumberGenerator::roll_dice)
             .build();
-        glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
 
         // parse the code
         let vals = glsp::parse_all(&code, Some("game"))?;

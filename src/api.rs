@@ -23,12 +23,12 @@ pub enum GlspCommand {
 }
 
 pub fn cls() {
-    QUEUE.lock().unwrap().push(GlspCommand::Cls);
+    QUEUE.lock().push(GlspCommand::Cls);
 }
 
 pub fn print(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
     let glyph = rltk::to_cp437(char);
-    QUEUE.lock().unwrap().push(GlspCommand::Print {
+    QUEUE.lock().push(GlspCommand::Print {
         x,
         y,
         glyph,
@@ -39,7 +39,7 @@ pub fn print(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
 
 pub fn key_pressed(k: String) -> bool {
     let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
-    let rkey = *KEYPRESSED.lock().unwrap();
+    let rkey = *KEYPRESSED.lock();
     match (key, rkey) {
         (Ok(_), None) => false,
         (Ok(key), Some(rkey)) => key as u32 == rkey as u32,
@@ -57,7 +57,7 @@ pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
 }
 
 pub fn exit() {
-    QUEUE.lock().unwrap().push(GlspCommand::Exit);
+    QUEUE.lock().push(GlspCommand::Exit);
 }
 
 /// `(sized-arr "foo" 50)` will create an `(arr)` pre-filled
