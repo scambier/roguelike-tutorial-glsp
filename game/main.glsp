@@ -83,7 +83,7 @@
 (.set-res world 'map (new-map))
 
 (defn run ()
-    (cls)
+    ;(cls)
     (player-input)
     (draw-map (.get-res world 'map))
     (sys:render world)

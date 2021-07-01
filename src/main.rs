@@ -2,37 +2,32 @@ mod api;
 mod glsp_interpreter;
 mod keycodes;
 
-use api::GlspCommand;
-use glsp::{RClassBuilder, Val};
+use api::{GlspCommand, KeyPressed};
+use glsp::{RClassBuilder, RGlobal, Val};
 use glsp_interpreter::*;
-use lazy_static::lazy_static;
-use parking_lot::Mutex;
-use rltk::{GameState, RandomNumberGenerator, Rltk, VirtualKeyCode};
-use std::{fs::read_to_string};
+use rltk::{GameState, RandomNumberGenerator, Rltk};
+use std::fs::read_to_string;
+
+use crate::api::CommandQueue;
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
-
-lazy_static! {
-    pub static ref QUEUE: Mutex<Vec<GlspCommand>> = Mutex::new(vec![]);
-    pub static ref KEYPRESSED: Mutex<Option<VirtualKeyCode>> = Mutex::new(None);
-}
 
 struct State {
     interpreter: GlspInterpreter,
 }
 impl GameState for State {
     fn tick(&mut self, ctx: &mut Rltk) {
-        match ctx.key {
-            Some(key) => {
-                KEYPRESSED.lock().replace(key);
-            }
-            None => {
-                KEYPRESSED.lock().take();
-            }
-        }
-
         self.interpreter.runtime.run(|| {
+            match ctx.key {
+                Some(key) => {
+                    KeyPressed::borrow_mut().0.replace(key);
+                }
+                None => {
+                    KeyPressed::borrow_mut().0.take();
+                }
+            }
+
             let update = match glsp::global::<_, Val>("run") {
                 Ok(Val::GFn(update)) => update,
                 Ok(val) => {
@@ -49,25 +44,26 @@ impl GameState for State {
                 }
             };
 
+            // Execute all deferred commands
+            let mut queue = CommandQueue::borrow_mut();
+            for command in queue.0.iter() {
+                match command {
+                    GlspCommand::Cls => ctx.cls(),
+                    GlspCommand::Print {
+                        x,
+                        y,
+                        glyph,
+                        fg,
+                        bg,
+                    } => ctx.set(*x, *y, *fg, *bg, *glyph),
+                    GlspCommand::Exit => ctx.quit(),
+                }
+            }
+            queue.0.clear();
+
             glsp::gc();
             Ok(())
         });
-
-        for command in QUEUE.lock().iter() {
-            // iterate commands to call rust functions
-            match command {
-                GlspCommand::Cls => ctx.cls(),
-                GlspCommand::Print {
-                    x,
-                    y,
-                    glyph,
-                    fg,
-                    bg,
-                } => ctx.set(*x, *y, *fg, *bg, *glyph),
-                GlspCommand::Exit => ctx.quit(),
-            }
-        }
-        QUEUE.lock().clear();
 
         ctx.print(0, 0, ctx.fps);
     }
@@ -88,16 +84,20 @@ fn main() -> rltk::BError {
 
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
+        // globals
+        glsp::add_rglobal(CommandQueue::new());
+        glsp::add_rglobal(KeyPressed::new());
+
+        // constants
+        glsp::bind_global(":width", WIDTH)?;
+        glsp::bind_global(":height", HEIGHT)?;
+
         // api
         glsp::bind_rfn("cls", &api::cls)?;
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
         glsp::bind_rfn("sized-arr", &api::sized_arr)?;
-
-        // constants
-        glsp::bind_global(":width", WIDTH)?;
-        glsp::bind_global(":height", HEIGHT)?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;
