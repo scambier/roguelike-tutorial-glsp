@@ -26,7 +26,7 @@ pub fn cls() {
     QUEUE.lock().push(GlspCommand::Cls);
 }
 
-pub fn print(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
+pub fn set_char(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
     let glyph = rltk::to_cp437(char);
     QUEUE.lock().push(GlspCommand::Print {
         x,

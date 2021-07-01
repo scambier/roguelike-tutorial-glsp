@@ -1,4 +1,4 @@
 ; rendering system
 (defn sys:render (world)
     (for (entity (pos render)) in (.query world Position Renderable)
-        (print [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg])))
+        (set [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg])))

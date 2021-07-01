@@ -90,7 +90,7 @@ fn main() -> rltk::BError {
     interpreter.runtime.run(|| {
         // api
         glsp::bind_rfn("cls", &api::cls)?;
-        glsp::bind_rfn("print", &api::print)?;
+        glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
         glsp::bind_rfn("sized-arr", &api::sized_arr)?;
