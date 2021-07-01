@@ -1,8 +1,11 @@
 (include "game/utils.glsp")
 (include "game/ecs.glsp")
+(include "game/systems.glsp")
 
 (defstruct Renderable
-    glyph)
+    glyph fg bg
+    (const simple (fn (glyph)
+        (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
 
 (defstruct Position
     x y)
@@ -12,21 +15,43 @@
 
 (defstruct Player)
 
-; init world
-(let world (World))
+; creates a new map with random walls
+(defn new-map ()
+    (let map (sized-arr 'floor (* :width :height)))
 
-; init player and save its ref
-(let player (.add-entity world
-    (Player)
-    (Renderable:new "@")
-    (Position:new (/ :width 2) (/ :height 2))))
+    ; border walls
+    (forn (x 0 :width)
+        (= [map (xy-idx x 0)] 'wall)
+        (= [map (xy-idx x (- :height 1))] 'wall))
+    (forn (y 0 :height)
+        (= [map (xy-idx 0 y)] 'wall)
+        (= [map (xy-idx (- :width 1) y)] 'wall))
 
-(.set-res world 'player player)
+    ; random walls
+    (let rng (RNG))
+    (forn (_ 0 400)
+        (let x (.roll-dice rng 1 (- :width 1)))
+        (let y (.roll-dice rng 1 (- :height 1)))
+        (let idx (xy-idx x y))
+        (let center (xy-idx (/ :width 2) (/ :height 2)))
+        (unless (eq? idx center)
+            (= [map idx] 'wall)))
+    map)
 
-; rendering system
-(defn sys:render (world)
-    (for (entity (pos render)) in (.query world Position Renderable)
-        (print [pos 'x] [pos 'y] [render 'glyph])))
+(defn draw-map (map)
+    (let x 0)
+    (let y 0)
+    (for tile in map
+        (match tile
+            ('floor
+                (print x y \. (Color 0.5 0.5 0.5) (Color 0 0 0)))
+            ('wall
+                (print x y \# (Color 0 1 0) (Color 0 0 0))))
+        ; move coords
+        (inc! x)
+        (when (> x (- :width 1))
+            (= x 0)
+            (inc! y))))
 
 ; input manager
 (defn player-input ()
@@ -39,8 +64,27 @@
     (when (key? "escape") (exit))
 )
 
+;;;;
+;;;; logic starts here
+;;;;
+
+; init world
+(def world (World))
+
+; init player and save its ref
+(let player (.add-entity world
+    (Player)
+    (.simple Renderable \@)
+    (Position:new (/ :width 2) (/ :height 2))))
+
+(.set-res world 'player player)
+
+; init the map
+(.set-res world 'map (new-map))
+
 (defn run ()
     (cls)
     (player-input)
+    (draw-map (.get-res world 'map))
     (sys:render world)
 )

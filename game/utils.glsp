@@ -15,3 +15,6 @@
     (when (< val 0) (return '<))
     (when (> val 0) (return '>))
     '==)
+
+(defn xy-idx (x y)
+    (+ (* y :width) x))

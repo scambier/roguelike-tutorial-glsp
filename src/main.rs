@@ -1,9 +1,12 @@
+mod api;
 mod glsp_interpreter;
+mod keycodes;
 
-use glsp::Val;
+use api::GlspCommand;
+use glsp::{RClassBuilder, Val};
 use glsp_interpreter::*;
 use lazy_static::lazy_static;
-use rltk::{GameState, Rltk, VirtualKeyCode};
+use rltk::{GameState, RandomNumberGenerator, Rltk, VirtualKeyCode};
 use std::{fs::read_to_string, sync::Mutex};
 
 const WIDTH: i32 = 80;
@@ -50,13 +53,22 @@ impl GameState for State {
         });
 
         for command in QUEUE.lock().unwrap().iter() {
+            // iterate commands to call rust functions
             match command {
                 GlspCommand::Cls => ctx.cls(),
-                GlspCommand::Print { x, y, s } => ctx.print(*x, *y, s),
+                GlspCommand::Print {
+                    x,
+                    y,
+                    glyph,
+                    fg,
+                    bg,
+                } => ctx.set(*x, *y, *fg, *bg, *glyph),
                 GlspCommand::Exit => ctx.quit(),
             }
         }
         QUEUE.lock().unwrap().clear();
+
+        ctx.print(0, 0, ctx.fps);
     }
 }
 
@@ -76,14 +88,24 @@ fn main() -> rltk::BError {
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
         // api
-        glsp::bind_rfn("cls", &cls)?;
-        glsp::bind_rfn("print", &print)?;
-        glsp::bind_rfn("key?", &key_pressed)?;
-        glsp::bind_rfn("exit", &exit)?;
+        glsp::bind_rfn("cls", &api::cls)?;
+        glsp::bind_rfn("print", &api::print)?;
+        glsp::bind_rfn("key?", &api::key_pressed)?;
+        glsp::bind_rfn("exit", &api::exit)?;
+        glsp::bind_rfn("sized-arr", &api::sized_arr)?;
 
         // constants
         glsp::bind_global(":width", WIDTH)?;
         glsp::bind_global(":height", HEIGHT)?;
+
+        // colors
+        glsp::bind_rfn("Color", &api::rgb_color)?;
+
+        // rng
+        RClassBuilder::<RandomNumberGenerator>::new()
+            .met("roll-dice", &RandomNumberGenerator::roll_dice)
+            .build();
+        glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
 
         // parse the code
         let vals = glsp::parse_all(&code, Some("game"))?;
