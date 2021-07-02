@@ -3,72 +3,76 @@
 (include "game/systems.glsp")
 
 (defstruct Renderable
-    glyph fg bg
-    (const simple (fn (glyph)
-        (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
+  glyph fg bg
+  (const simple (fn (glyph)
+    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
 
 (defstruct Position
-    x y)
+  x y)
 
 (defstruct Enemy
-    x y)
+  x y)
 
 (defstruct Player)
 
 ; creates a new map with random walls
 (defn new-map ()
-    (let map (sized-arr 'floor (* :width :height)))
+  (let map (sized-arr 'floor (* :width :height)))
 
-    ; border walls
-    (forn (x 0 :width)
-        (= [map (xy-idx x 0)] 'wall)
-        (= [map (xy-idx x (- :height 1))] 'wall))
-    (forn (y 0 :height)
-        (= [map (xy-idx 0 y)] 'wall)
-        (= [map (xy-idx (- :width 1) y)] 'wall))
+  ; border walls
+  (forn (x 0 :width)
+    (= [map (xy-idx x 0)] 'wall)
+    (= [map (xy-idx x (- :height 1))] 'wall))
+  (forn (y 0 :height)
+    (= [map (xy-idx 0 y)] 'wall)
+    (= [map (xy-idx (- :width 1) y)] 'wall))
 
-    ; random walls
-    (let rng (RNG))
-    (forn (_ 0 400)
-        (let x (.roll-dice rng 1 (- :width 1)))
-        (let y (.roll-dice rng 1 (- :height 1)))
-        (let idx (xy-idx x y))
-        (let center (xy-idx (/ :width 2) (/ :height 2)))
-        (unless (eq? idx center)
-            (= [map idx] 'wall)))
-    map)
+  ; random walls
+  (let rng (RNG))
+  (forn (_ 0 400)
+    (let x (.roll-dice rng 1 (- :width 1)))
+    (let y (.roll-dice rng 1 (- :height 1)))
+    (let idx (xy-idx x y))
+    (let center (xy-idx (/ :width 2) (/ :height 2)))
+    (unless (eq? idx center)
+      (= [map idx] 'wall)))
+  map)
 
 (defn draw-map (map)
-    (let x 0)
-    (let y 0)
-    (for tile in map
-        (match tile
-            ('floor
-                (set x y \. (Color 0.5 0.5 0.5) (Color 0 0 0)))
-            ('wall
-                (set x y \# (Color 0 1 0) (Color 0 0 0))))
-        ; move coords
-        (inc! x)
-        (when (> x (- :width 1))
-            (= x 0)
-            (inc! y))))
+  (let x 0)
+  (let y 0)
+  (for tile in map
+    (match tile
+      ('floor
+        (set x y \. (Color 0.5 0.5 0.5) (Color 0 0 0)))
+      ('wall
+        (set x y \# (Color 0 1 0) (Color 0 0 0))))
+    ; move coords
+    (inc! x)
+    (when (> x (- :width 1))
+      (= x 0)
+      (inc! y))))
 
 ; input manager
 (defn player-input ()
-    (let player (.fetch world 'player))
-    (let pos (.get-cmp world player Position))
-    (when (key? "up") (try-move-player 0 -1))
-    (when (key? "down") (try-move-player 0 1))
-    (when (key? "left") (try-move-player -1 0))
-    (when (key? "right") (try-move-player 1 0))
-    (when (key? "escape") (exit))
+  (let player (.fetch world 'player))
+  (let pos (.get-cmp world player Position))
+  (when (key? "up") (try-move-player 0 -1))
+  (when (key? "down") (try-move-player 0 1))
+  (when (key? "left") (try-move-player -1 0))
+  (when (key? "right") (try-move-player 1 0))
+  (when (key? "escape") (exit))
 )
 
 (defn try-move-player (dx dy)
-    (let player (.fetch world 'player))
-    (let pos (.get-cmp world player Position))
+  (let player (.fetch world 'player))
+  (let map (.fetch world 'map))
+  (let pos (.get-cmp world player Position))
+  (let destination (xy-idx (+ [pos 'x] dx) (+ [pos 'y] dy)))
+  ; block movement on walls
+  (unless (eq? [map destination] 'wall)
     (= [pos 'x] (min 79 (max 0 (+ [pos 'x] dx))))
-    (= [pos 'y] (min 49 (max 0 (+ [pos 'y] dy)))))
+    (= [pos 'y] (min 49 (max 0 (+ [pos 'y] dy))))))
 
 ;;;;
 ;;;; logic starts here
@@ -79,9 +83,9 @@
 
 ; init player and save its ref
 (let player (.add-entity world
-    (Player)
-    (.simple Renderable \@)
-    (Position:new (/ :width 2) (/ :height 2))))
+  (Player)
+  (.simple Renderable \@)
+  (Position:new (/ :width 2) (/ :height 2))))
 
 (.save world 'player player)
 
@@ -89,8 +93,8 @@
 (.save world 'map (new-map))
 
 (defn run ()
-    ;(cls)
-    (player-input)
-    (draw-map (.fetch world 'map))
-    (sys:render world)
+  ;(cls)
+  (player-input)
+  (draw-map (.fetch world 'map))
+  (sys:render world)
 )

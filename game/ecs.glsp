@@ -1,49 +1,49 @@
 (defclass World
-    (field counter)
-    (field entities)
-    (field resources)
+  (field counter)
+  (field entities)
+  (field resources)
 
-    (init ()
-        (= @counter 0)
-        (= @entities (tab))
-        (= @resources (tab)))
+  (init ()
+    (= @counter 0)
+    (= @entities (tab))
+    (= @resources (tab)))
 
-    (met fetch (key)
-        [@resources key])
+  (met fetch (key)
+    [@resources key])
 
-    (met save (key val)
-        (= [@resources key] val))
+  (met save (key val)
+    (= [@resources key] val))
 
-    (met add-entity (..components)
-        (inc! @counter)
-        (= [@entities @counter] components)
-        @counter)
+  (met add-entity (..components)
+    (inc! @counter)
+    (= [@entities @counter] components)
+    @counter)
 
-    ; query the world to get entities with corresponding components
-    ; TODO: implement some caching
-    (met query (..structs)
-        (let filtered (->>
-            @entities
-            ; get entities that match the required structs
-            (filter (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs)))
-            ; only keep the required components
-            (map (fn (e) (arr [e 0] (
-                filter (fn (c) (index-of structs (class-of c))) [e 1])
-            )))
-        ))
+  ; query the world to get entities with corresponding components
+  ; TODO: implement some caching
+  (met query (..structs)
+    (let filtered (->>
+      @entities
+      ; get entities that match the required structs
+      (filter (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs)))
+      ; only keep the required components
+      (map (fn (e) (arr [e 0] (
+          filter (fn (c) (index-of structs (class-of c))) [e 1])
+      )))
+    ))
 
-        ; put them in the correct order
-        (let ordered (tab))
-        (for (k v) in filtered
-            (let o (sort (arr ..v) (fn (a b)
-                ; https://stackoverflow.com/a/44063445
-                (gt-lt (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
-            )))
-            (= [ordered k] o))
+    ; put them in the correct order
+    (let ordered (tab))
+    (for (k v) in filtered
+      (let o (sort (arr ..v) (fn (a b)
+          ; https://stackoverflow.com/a/44063445
+          (gt-lt (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
+      )))
+      (= [ordered k] o))
 
-        ordered)
+    ordered)
 
-    ; TODO: accept syms as entities
-    (met get-cmp (entity type)
-        (let components (iter [@entities entity]))
-        (find (fn (cmp) (eq? (class-of cmp) type)) components)))
+  ; TODO: accept syms as entities
+  (met get-cmp (entity type)
+    (let components (iter [@entities entity]))
+    (find (fn (cmp) (eq? (class-of cmp) type)) components)))
