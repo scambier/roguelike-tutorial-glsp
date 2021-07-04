@@ -5,7 +5,9 @@ mod keycodes;
 use api::{GlspCommand, KeyPressed};
 use glsp::{RClassBuilder, RGlobal, Val};
 use glsp_interpreter::*;
-use rltk::{GameState, RandomNumberGenerator, Rltk};
+use rltk::{
+    embedded_resource, link_resource, GameState, RandomNumberGenerator, Rect, Rltk, SpriteSheet,
+};
 use std::fs::read_to_string;
 
 use crate::api::CommandQueue;
@@ -71,10 +73,12 @@ impl GameState for State {
 
 fn main() -> rltk::BError {
     use rltk::RltkBuilder;
-    let context = RltkBuilder::simple(WIDTH, HEIGHT)
-        .unwrap()
-        // .with_tile_dimensions(16, 16)
+    let context = RltkBuilder::new()
         .with_title("Roguelike Tutorial")
+        .with_dimensions(WIDTH, HEIGHT)
+        .with_tile_dimensions(12, 12)
+        .with_font("../assets/Unknown-curses-12x12.png", 12, 12)
+        .with_simple_console(WIDTH, HEIGHT, "../assets/Unknown-curses-12x12.png")
         .build()?;
 
     let code = match read_to_string("./game/main.glsp") {
