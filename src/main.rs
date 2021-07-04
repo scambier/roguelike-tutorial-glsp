@@ -6,7 +6,6 @@ use api::{GlspCommand, KeyPressed};
 use glsp::{RClassBuilder, RGlobal, Val};
 use glsp_interpreter::*;
 use rltk::{GameState, RandomNumberGenerator, Rltk};
-use std::fs::read_to_string;
 
 use crate::api::CommandQueue;
 
@@ -80,10 +79,10 @@ fn main() -> rltk::BError {
         .with_simple_console(WIDTH, HEIGHT, "../assets/Unknown-curses-12x12.png")
         .build()?;
 
-    let code = match read_to_string("./game/main.glsp") {
-        Ok(code) => code,
-        Err(e) => panic!("{:?}", e),
-    };
+    // let code = match read_to_string("./game/main.glsp") {
+    //     Ok(code) => code,
+    //     Err(e) => panic!("{:?}", e),
+    // };
 
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
@@ -112,10 +111,11 @@ fn main() -> rltk::BError {
             .build();
 
         // parse the code
-        let vals = glsp::parse_all(&code, Some("game"))?;
+        // let vals = glsp::parse_all(&code, Some("game"))?;
+        let res = glsp::load("./game/main.glsp")?;
 
         // initial evaluation
-        glsp::eval_multi(&vals, None)?;
+        glsp::eval(&res, None)?;
         Ok(())
     });
     let gs = State { interpreter };
