@@ -74,6 +74,7 @@ fn main() -> rltk::BError {
     let context = RltkBuilder::new()
         .with_title("Roguelike Tutorial")
         .with_dimensions(WIDTH, HEIGHT)
+        .with_vsync(false)
         .with_tile_dimensions(12, 12)
         .with_font("../assets/Unknown-curses-12x12.png", 12, 12)
         .with_simple_console(WIDTH, HEIGHT, "../assets/Unknown-curses-12x12.png")

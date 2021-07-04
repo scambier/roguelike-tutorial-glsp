@@ -7,7 +7,7 @@
 (defn draw-map (map)
   (let x 0)
   (let y 0)
-  (for tile in map
+  (for tile in [map 'tiles]
     (match tile
       ('floor
         (set x y \. (Color 0.2 0.2 0.2) (Color 0 0 0)))
@@ -27,16 +27,15 @@
   (when (key? "down") (try-move-player 0 1))
   (when (key? "left") (try-move-player -1 0))
   (when (key? "right") (try-move-player 1 0))
-  (when (key? "escape") (exit))
-  )
+  (when (key? "escape") (exit)))
 
 (defn try-move-player (dx dy)
   (let player (.fetch world 'player))
-  (let map (.fetch world 'map))
+  (let tiles [(.fetch world 'map) 'tiles])
   (let pos (.get-cmp world player Position))
   (let destination (xy-idx (+ [pos 'x] dx) (+ [pos 'y] dy)))
   ; block movement on walls
-  (unless (eq? [map destination] 'wall)
+  (unless (eq? [tiles destination] 'wall)
     (= [pos 'x] (min 79 (max 0 (+ [pos 'x] dx))))
     (= [pos 'y] (min 49 (max 0 (+ [pos 'y] dy))))))
 
@@ -48,11 +47,11 @@
 (def world (World))
 
 ; init the map
-(let (rooms map) (new-map-rooms-and-corridors))
+(let map (new-map-rooms-and-corridors))
 (.save world 'map map)
 
 ; init player and save its ref
-(let (px py) (.center [rooms 0]))
+(let (px py) (.center (-> map ['rooms] [0])))
 (let player (.add-entity world
   (Player)
   (.simple Renderable \@)
