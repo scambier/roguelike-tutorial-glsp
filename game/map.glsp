@@ -1,0 +1,81 @@
+; creates a new map with random walls
+(defn new-map-test ()
+  (let map (arr-from-elem 'floor (* :width :height)))
+
+  ; border walls
+  (forn (x 0 :width)
+    (= [map (xy-idx x 0)] 'wall)
+    (= [map (xy-idx x (- :height 1))] 'wall))
+  (forn (y 0 :height)
+    (= [map (xy-idx 0 y)] 'wall)
+    (= [map (xy-idx (- :width 1) y)] 'wall))
+
+  ; random walls
+  (let rng (RNG))
+  (forn (_ 0 400)
+    (let x (.roll-dice rng 1 (- :width 1)))
+    (let y (.roll-dice rng 1 (- :height 1)))
+    (let idx (xy-idx x y))
+    (let center (xy-idx (/ :width 2) (/ :height 2)))
+    (unless (eq? idx center)
+      (= [map idx] 'wall)))
+  map)
+
+(defn new-map-rooms-and-corridors ()
+  (let
+    map (arr-from-elem 'wall (* :width :height)),
+    rooms (arr), max-rooms 30,
+    min-size 6, max-size 10,
+    rng (RNG))
+
+  (forn (_ 0 max-rooms)
+    (let
+      w (.range rng min-size max-size)
+      h (.range rng min-size max-size)
+      x (- (.roll-dice rng 1 (- :width w 1)) 1)
+      y (- (.roll-dice rng 1 (- :height h 1)) 1)
+      new-room (Rect x y w h)
+      ok #t)
+    (for other_room in rooms
+      (when (.intersect? new-room other_room) (= ok #f)))
+    (when ok
+      (apply-room-to-map new-room map)
+      (unless (empty? rooms)
+        (let
+          (new-x new-y) (.center new-room)
+          (prev-x prev-y) (.center (last-item rooms)))
+        (if (eq? (.range rng 0 2) 1)
+          (do
+            (apply-horizontal-tunnel map prev-x new-x prev-y)
+            (apply-vertical-tunnel map prev-y new-y new-x)
+            )
+          (do
+            (apply-vertical-tunnel map prev-y new-y prev-x)
+            (apply-horizontal-tunnel map prev-x new-x new-y)
+            ))
+        )
+      (push! rooms new-room)))
+  (arr rooms map))
+
+;
+; utils
+;
+
+(defn apply-room-to-map (room map)
+  (forni (y (+ 1 [room 'y1]) [room 'y2])
+    (forni (x (+ 1 [room 'x1]) [room 'x2])
+      (= [map (xy-idx x y)] 'floor))))
+
+(defn apply-horizontal-tunnel (map x1 x2 y)
+  (forni (x (min x1 x2) (max x1 x2))
+    (let idx (xy-idx x y))
+    ; keep corridor within map range
+    (when (and (> idx 0) (< idx (* :width :height)))
+      (= [map idx] 'floor))))
+
+(defn apply-vertical-tunnel (map y1 y2 x)
+  (forni (y (min y1 y2) (max y1 y2))
+    (let idx (xy-idx x y))
+    ; keep corridor within map range
+    (when (and (> idx 0) (< idx (* :width :height)))
+      (= [map idx] 'floor))))

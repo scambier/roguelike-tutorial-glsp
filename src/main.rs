@@ -5,9 +5,7 @@ mod keycodes;
 use api::{GlspCommand, KeyPressed};
 use glsp::{RClassBuilder, RGlobal, Val};
 use glsp_interpreter::*;
-use rltk::{
-    embedded_resource, link_resource, GameState, RandomNumberGenerator, Rect, Rltk, SpriteSheet,
-};
+use rltk::{GameState, RandomNumberGenerator, Rltk};
 use std::fs::read_to_string;
 
 use crate::api::CommandQueue;
@@ -101,7 +99,6 @@ fn main() -> rltk::BError {
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
-        glsp::bind_rfn("sized-arr", &api::sized_arr)?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;
@@ -110,6 +107,7 @@ fn main() -> rltk::BError {
         glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
         RClassBuilder::<RandomNumberGenerator>::new()
             .met("roll-dice", &RandomNumberGenerator::roll_dice)
+            .met("range", &RandomNumberGenerator::range::<i32>)
             .build();
 
         // parse the code

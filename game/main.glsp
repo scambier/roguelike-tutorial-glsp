@@ -1,42 +1,8 @@
-(include "game/utils.glsp")
-(include "game/ecs.glsp")
-(include "game/systems.glsp")
-
-(defstruct Renderable
-  glyph fg bg
-  (const simple (fn (glyph)
-    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
-
-(defstruct Position
-  x y)
-
-(defstruct Enemy
-  x y)
-
-(defstruct Player)
-
-; creates a new map with random walls
-(defn new-map ()
-  (let map (sized-arr 'floor (* :width :height)))
-
-  ; border walls
-  (forn (x 0 :width)
-    (= [map (xy-idx x 0)] 'wall)
-    (= [map (xy-idx x (- :height 1))] 'wall))
-  (forn (y 0 :height)
-    (= [map (xy-idx 0 y)] 'wall)
-    (= [map (xy-idx (- :width 1) y)] 'wall))
-
-  ; random walls
-  (let rng (RNG))
-  (forn (_ 0 400)
-    (let x (.roll-dice rng 1 (- :width 1)))
-    (let y (.roll-dice rng 1 (- :height 1)))
-    (let idx (xy-idx x y))
-    (let center (xy-idx (/ :width 2) (/ :height 2)))
-    (unless (eq? idx center)
-      (= [map idx] 'wall)))
-  map)
+(require "game/structs.glsp")
+(require "game/utils.glsp")
+(require "game/ecs.glsp")
+(require "game/systems.glsp")
+(require "game/map.glsp")
 
 (defn draw-map (map)
   (let x 0)
@@ -44,9 +10,9 @@
   (for tile in map
     (match tile
       ('floor
-        (set x y \. (Color 0.5 0.5 0.5) (Color 0 0 0)))
+        (set x y \. (Color 0.2 0.2 0.2) (Color 0 0 0)))
       ('wall
-        (set x y \# (Color 0 1 0) (Color 0 0 0))))
+        (set x y \# (Color 0.5 0.5 0.5) (Color 0 0 0))))
     ; move coords
     (inc! x)
     (when (> x (- :width 1))
@@ -62,7 +28,7 @@
   (when (key? "left") (try-move-player -1 0))
   (when (key? "right") (try-move-player 1 0))
   (when (key? "escape") (exit))
-)
+  )
 
 (defn try-move-player (dx dy)
   (let player (.fetch world 'player))
@@ -81,20 +47,21 @@
 ; init world
 (def world (World))
 
+; init the map
+(let (rooms map) (new-map-rooms-and-corridors))
+(.save world 'map map)
+
 ; init player and save its ref
+(let (px py) (.center [rooms 0]))
 (let player (.add-entity world
   (Player)
   (.simple Renderable \@)
-  (Position:new (/ :width 2) (/ :height 2))))
-
+  (Position:new px py)))
 (.save world 'player player)
-
-; init the map
-(.save world 'map (new-map))
 
 (defn run ()
   ;(cls)
   (player-input)
   (draw-map (.fetch world 'map))
   (sys:render world)
-)
+  )

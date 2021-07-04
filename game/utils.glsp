@@ -18,3 +18,6 @@
 
 (defn xy-idx (x y)
   (+ (* y :width) x))
+
+(defn last-item (array)
+  [array (- (len array) 1)])

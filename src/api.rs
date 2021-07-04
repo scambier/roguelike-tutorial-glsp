@@ -80,10 +80,3 @@ pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
 pub fn exit() {
     CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
 }
-
-/// `(sized-arr "foo" 50)` will create an `(arr)` pre-filled
-/// with 50 `"foo"`, indexed from 0 to 49
-pub fn sized_arr(val: Val, size: Num) -> Vec<Val> {
-    let size = to_i32(size) as usize;
-    vec![val; size]
-}

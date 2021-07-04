@@ -1,0 +1,27 @@
+(defstruct Renderable
+  glyph fg bg
+  (const simple (fn (glyph)
+    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
+
+(defstruct Position
+  x y)
+
+(defstruct Enemy
+  x y)
+
+(defstruct Player)
+
+(defclass Rect
+  (field x1) (field x2) (field y1) (field y2)
+
+  (init (@x1 @y1 w h)
+    (= @x2 (+ @x1 w))
+    (= @y2 (+ @y1 h)))
+
+  (met intersect? (other)
+    (and
+      (<= @x1 [other 'x2]) (>= @x2 [other 'x1])
+      (<= @y1 [other 'y2]) (>= @y2 [other 'y1])))
+
+  (met center ()
+    (arr (/ (+ @x1 @x2) 2) (/ (+ @y1 @y2 ) 2))))

@@ -28,17 +28,15 @@
       (filter (fn (e) (arr-contains-arr? (map (fn (cmp) (class-of cmp)) [e 1]) structs)))
       ; only keep the required components
       (map (fn (e) (arr [e 0] (
-          filter (fn (c) (index-of structs (class-of c))) [e 1])
-      )))
-    ))
+        filter (fn (c) (index-of structs (class-of c))) [e 1]))))))
 
     ; put them in the correct order
     (let ordered (tab))
     (for (k v) in filtered
       (let o (sort (arr ..v) (fn (a b)
-          ; https://stackoverflow.com/a/44063445
-          (gt-lt (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
-      )))
+        ; https://stackoverflow.com/a/44063445
+        (gt-lt (- (index-of structs (class-of a)) (index-of structs (class-of b) )))
+        )))
       (= [ordered k] o))
 
     ordered)
