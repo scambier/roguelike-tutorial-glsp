@@ -1,9 +1,9 @@
 use crate::keycodes::StrKeyCode;
 use glsp::prelude::*;
 use rltk::{VirtualKeyCode, RGB};
-use std::{str::FromStr, usize};
+use std::str::FromStr;
 
-fn to_i32(n: Num) -> i32 {
+fn _to_i32(n: Num) -> i32 {
     match n {
         Num::Flo(n) => n as i32,
         Num::Int(n) => n,
