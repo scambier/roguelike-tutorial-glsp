@@ -36,6 +36,6 @@ Then, simply type `cargo run` to execute it.
 - [x] Make a barebones ECS
 	- [ ] Optimize
 	- [ ] Implement cache
-- [ ] Learn how to use GameLisp features (mixins, classmacros, states)
+- [x] Compile a self-contained executable (actually has issues with glsp files)
 - [ ] Web build (currently broken)
 - [ ] Live reload of glsp code

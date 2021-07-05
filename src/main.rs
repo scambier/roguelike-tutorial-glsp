@@ -1,3 +1,4 @@
+#![windows_subsystem="windows"]
 bracket_lib::prelude::add_wasm_support!();
 
 mod api;
@@ -57,18 +58,29 @@ impl GameState for State {
     }
 }
 
+embedded_resource!(TILE_FONT, "../resources/Unknown-curses-12x12.png");
+
 fn main() -> BError {
+    link_resource!(TILE_FONT, "resources/Unknown-curses-12x12.png");
+
     let context = BTermBuilder::new()
         .with_title("Roguelike Tutorial")
         .with_dimensions(WIDTH, HEIGHT)
         .with_vsync(false)
         .with_tile_dimensions(12, 12)
-        .with_font("../assets/Unknown-curses-12x12.png", 12, 12)
-        .with_simple_console(WIDTH, HEIGHT, "../assets/Unknown-curses-12x12.png")
+        .with_font("Unknown-curses-12x12.png", 12, 12)
+        .with_simple_console(WIDTH, HEIGHT, "Unknown-curses-12x12.png")
         .build()?;
 
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
+        // Release: bundle the glsp code
+        #[cfg(feature = "compiler")]
+        let res = glsp::load_compiled(compile!["./game/main.glsp"])?;
+        // Dev: dynamically load the code
+        #[cfg(not(feature = "compiler"))]
+        let res = glsp::load("./game/main.glsp")?;
+
         // globals
         glsp::add_rglobal(CommandQueue::new());
         glsp::add_rglobal(KeyPressed::new());
@@ -92,13 +104,6 @@ fn main() -> BError {
             .met("roll-dice", &RandomNumberGenerator::roll_dice)
             .met("range", &RandomNumberGenerator::range::<i32>)
             .build();
-
-        // Release: bundle the glsp code
-        #[cfg(feature = "compiler")]
-        let res = glsp::load_compiled(compile!["./game/main.glsp"])?;
-        // Dev: dynamically load the code
-        #[cfg(not(feature = "compiler"))]
-        let res = glsp::load("./game/main.glsp")?;
 
         // Call the `(defn main:init)` function
         interpreter.call_init();
