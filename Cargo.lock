@@ -1366,21 +1366,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
-name = "rltk"
-version = "0.8.1"
-source = "git+https://github.com/amethyst/bracket-lib#d8c8af87173d0a26662fde108f7dc988ad3bed48"
-dependencies = [
- "bracket-lib",
-]
-
-[[package]]
 name = "roguelike-glsp"
 version = "0.1.0"
 dependencies = [
+ "bracket-lib",
  "getrandom",
  "glsp",
  "notify",
- "rltk",
  "rust-embed",
  "strum",
  "strum_macros",

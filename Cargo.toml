@@ -10,7 +10,7 @@ version = "0.1.0"
 getrandom = {version = "0.2", features = ["js"]}
 glsp = {version = "0.2.0", features = ["compiler"]}
 notify = "4.0.17"
-rltk = {git = "https://github.com/amethyst/bracket-lib"}
+bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
 rust-embed = "5.9.0"
 strum = "0.21"
 strum_macros = "0.21"

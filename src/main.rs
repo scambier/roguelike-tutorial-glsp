@@ -1,11 +1,13 @@
+bracket_lib::prelude::add_wasm_support!();
+
 mod api;
 mod glsp_interpreter;
 mod keycodes;
 
 use api::{GlspCommand, KeyPressed};
-use glsp::{RClassBuilder, RGlobal, Val, compile};
+use bracket_lib::prelude::*;
+use glsp::{compile, RClassBuilder, RGlobal};
 use glsp_interpreter::*;
-use rltk::{GameState, RandomNumberGenerator, Rltk};
 
 use crate::api::CommandQueue;
 
@@ -16,7 +18,7 @@ struct State {
     interpreter: GlspInterpreter,
 }
 impl GameState for State {
-    fn tick(&mut self, ctx: &mut Rltk) {
+    fn tick(&mut self, ctx: &mut BTerm) {
         self.interpreter.runtime.run(|| {
             match ctx.key {
                 Some(key) => {
@@ -68,9 +70,8 @@ impl GameState for State {
     }
 }
 
-fn main() -> rltk::BError {
-    use rltk::RltkBuilder;
-    let context = RltkBuilder::new()
+fn main() -> BError {
+    let context = BTermBuilder::new()
         .with_title("Roguelike Tutorial")
         .with_dimensions(WIDTH, HEIGHT)
         .with_vsync(false)
@@ -118,7 +119,7 @@ fn main() -> rltk::BError {
         Ok(())
     });
     let gs = State { interpreter };
-    rltk::main_loop(context, gs)
+    main_loop(context, gs)
 }
 
 // #[cfg(target_arch = "wasm32")]

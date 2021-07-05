@@ -1,6 +1,6 @@
 use crate::keycodes::StrKeyCode;
+use bracket_lib::prelude::*;
 use glsp::prelude::*;
-use rltk::{VirtualKeyCode, RGB};
 use std::str::FromStr;
 
 fn _to_i32(n: Num) -> i32 {
@@ -45,8 +45,8 @@ pub fn cls() {
 }
 
 pub fn set_char(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
-    let glyph = rltk::to_cp437(char);
-    let command = GlspCommand::Print {
+    let glyph = to_cp437(char);
+    let command = GlspCommand::SetChar {
         x,
         y,
         glyph,
