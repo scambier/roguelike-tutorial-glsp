@@ -8,7 +8,7 @@ version = "0.1.0"
 
 [dependencies]
 getrandom = {version = "0.2", features = ["js"]}
-glsp = "0.2.0"
+glsp = {version = "0.2.0", features = ["compiler"]}
 notify = "4.0.17"
 rltk = {git = "https://github.com/amethyst/bracket-lib"}
 rust-embed = "5.9.0"
@@ -22,3 +22,6 @@ opt-level = 2
 codegen-units = 1
 lto = true
 opt-level = 3
+
+[features]
+compiler = []

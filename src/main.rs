@@ -3,7 +3,7 @@ mod glsp_interpreter;
 mod keycodes;
 
 use api::{GlspCommand, KeyPressed};
-use glsp::{RClassBuilder, RGlobal, Val};
+use glsp::{RClassBuilder, RGlobal, Val, compile};
 use glsp_interpreter::*;
 use rltk::{GameState, RandomNumberGenerator, Rltk};
 
@@ -79,11 +79,6 @@ fn main() -> rltk::BError {
         .with_simple_console(WIDTH, HEIGHT, "../assets/Unknown-curses-12x12.png")
         .build()?;
 
-    // let code = match read_to_string("./game/main.glsp") {
-    //     Ok(code) => code,
-    //     Err(e) => panic!("{:?}", e),
-    // };
-
     let interpreter = GlspInterpreter::new();
     interpreter.runtime.run(|| {
         // globals
@@ -110,8 +105,12 @@ fn main() -> rltk::BError {
             .met("range", &RandomNumberGenerator::range::<i32>)
             .build();
 
-        // parse the code
-        // let vals = glsp::parse_all(&code, Some("game"))?;
+        // Release: bundle the glsp code
+        // FIXME: not working
+        #[cfg(feature = "compiler")]
+        let res = glsp::load_compiled(compile!["./game/main.glsp"])?;
+        // Dev: dynamically load the code
+        #[cfg(not(feature = "compiler"))]
         let res = glsp::load("./game/main.glsp")?;
 
         // initial evaluation

@@ -62,5 +62,4 @@
   ;(cls)
   (player-input)
   (draw-map (.fetch world 'map))
-  (sys:render world)
-  )
+  (sys:render world))
