@@ -30,7 +30,7 @@ impl RGlobal for KeyPressed {}
 
 pub enum GlspCommand {
     Cls,
-    Print {
+    SetChar {
         x: i32,
         y: i32,
         glyph: u16,

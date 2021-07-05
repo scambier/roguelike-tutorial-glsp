@@ -29,28 +29,15 @@ impl GameState for State {
                 }
             }
 
-            let update = match glsp::global::<_, Val>("run") {
-                Ok(Val::GFn(update)) => update,
-                Ok(val) => {
-                    panic!("Invalid run callback:\n{:}", val);
-                }
-                Err(e) => {
-                    panic!("Cannot compile glsp code:\n{:}", e);
-                }
-            };
-            let _: Val = match glsp::call(&update, ()) {
-                Ok(val) => val,
-                Err(glsp_err) => {
-                    panic!("{:}", &glsp_err);
-                }
-            };
+            // Call the `(defn main:update)` function
+            self.interpreter.call_update();
 
             // Execute all deferred commands
             let mut queue = CommandQueue::borrow_mut();
             for command in queue.0.iter() {
                 match command {
                     GlspCommand::Cls => ctx.cls(),
-                    GlspCommand::Print {
+                    GlspCommand::SetChar {
                         x,
                         y,
                         glyph,
@@ -107,14 +94,15 @@ fn main() -> BError {
             .build();
 
         // Release: bundle the glsp code
-        // FIXME: not working
         #[cfg(feature = "compiler")]
         let res = glsp::load_compiled(compile!["./game/main.glsp"])?;
         // Dev: dynamically load the code
         #[cfg(not(feature = "compiler"))]
         let res = glsp::load("./game/main.glsp")?;
 
-        // initial evaluation
+        // Call the `(defn main:init)` function
+        interpreter.call_init();
+
         glsp::eval(&res, None)?;
         Ok(())
     });

@@ -74,25 +74,17 @@
       (push! [map 'rooms] new-room)))
   map)
 
-;
-; utils
-;
-
-; (defn apply-room-to-map (room map)
-;   (forni (y (+ 1 [room 'y1]) [room 'y2])
-;     (forni (x (+ 1 [room 'x1]) [room 'x2])
-;       (= [map (xy-idx x y)] 'floor))))
-
-; (defn apply-horizontal-tunnel (map x1 x2 y)
-;   (forni (x (min x1 x2) (max x1 x2))
-;     (let idx (xy-idx x y))
-;     ; keep corridor within map range
-;     (when (and (> idx 0) (< idx (* :width :height)))
-;       (= [map idx] 'floor))))
-
-; (defn apply-vertical-tunnel (map y1 y2 x)
-;   (forni (y (min y1 y2) (max y1 y2))
-;     (let idx (xy-idx x y))
-;     ; keep corridor within map range
-;     (when (and (> idx 0) (< idx (* :width :height)))
-;       (= [map idx] 'floor))))
+(defn draw-map (map)
+  (let x 0)
+  (let y 0)
+  (for tile in [map 'tiles]
+    (match tile
+      ('floor
+        (set x y \. (Color 0.2 0.2 0.2) (Color 0 0 0)))
+      ('wall
+        (set x y \# (Color 0.5 0.5 0.5) (Color 0 0 0))))
+    ; move coords
+    (inc! x)
+    (when (> x (- :width 1))
+      (= x 0)
+      (inc! y))))

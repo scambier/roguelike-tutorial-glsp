@@ -4,21 +4,6 @@
 (require "game/systems.glsp")
 (require "game/map.glsp")
 
-(defn draw-map (map)
-  (let x 0)
-  (let y 0)
-  (for tile in [map 'tiles]
-    (match tile
-      ('floor
-        (set x y \. (Color 0.2 0.2 0.2) (Color 0 0 0)))
-      ('wall
-        (set x y \# (Color 0.5 0.5 0.5) (Color 0 0 0))))
-    ; move coords
-    (inc! x)
-    (when (> x (- :width 1))
-      (= x 0)
-      (inc! y))))
-
 ; input manager
 (defn player-input ()
   (let player (.fetch world 'player))
@@ -28,6 +13,7 @@
   (when (key? "left") (try-move-player -1 0))
   (when (key? "right") (try-move-player 1 0))
   (when (key? "escape") (exit)))
+
 
 (defn try-move-player (dx dy)
   (let player (.fetch world 'player))
@@ -39,27 +25,32 @@
     (= [pos 'x] (min 79 (max 0 (+ [pos 'x] dx))))
     (= [pos 'y] (min 49 (max 0 (+ [pos 'y] dy))))))
 
-;;;;
-;;;; logic starts here
-;;;;
 
-; init world
-(def world (World))
+;;
+;; entry point
+;;
+(defn main:init ()
+  ; init world
+  (def world (World))
 
-; init the map
-(let map (new-map-rooms-and-corridors))
-(.save world 'map map)
+  ; init the map
+  (let map (new-map-rooms-and-corridors))
+  (.save world 'map map)
 
-; init player and save its ref
-(let (px py) (.center (-> map ['rooms] [0])))
-(let player (.add-entity world
-  (Player)
-  (.simple Renderable \@)
-  (Position:new px py)))
-(.save world 'player player)
+  ; init player and save its ref
+  (let (px py) (.center (-> map ['rooms] [0])))
+  (let player (.add-entity world
+    (Player)
+    (.simple Renderable \@)
+    (Position:new px py)))
+  (.save world 'player player))
 
-(defn run ()
-  ;(cls)
+
+;;
+;; update called every tick
+;;
+(defn main:update ()
+  (cls)
   (player-input)
   (draw-map (.fetch world 'map))
   (sys:render world))
