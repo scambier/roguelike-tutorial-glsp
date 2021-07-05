@@ -5,9 +5,11 @@
   (= b (if (iter? b) (arr ..b) b))
   (all? (fn (needle) (index-of a needle)) b))
 
+
 ; like `(position haystack needle)` but without the callback
 (defn index-of (haystack needle)
   (position haystack (fn (e) (eq? e needle))))
+
 
 ; converts a value <0 >0 ==0 to symbols '< '> '==
 ; useful for `(sort)`
@@ -16,8 +18,6 @@
   (when (> val 0) (return '>))
   '==)
 
-(defn xy-idx (x y)
-  (+ (* y :width) x))
 
 (defn last-item (array)
   [array (- (len array) 1)])
