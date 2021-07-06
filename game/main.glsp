@@ -8,9 +8,9 @@
 ; input manager
 (defn player-input ()
   (let
-    player (.fetch world 'player)
-    pos (.get-cmp world player Position)
-    map (.fetch world 'map))
+    player (.fetch :world 'player)
+    pos (.get-cmp :world player Position)
+    map (.fetch :world 'map))
 
   (when (key? "up") (try-move-player map 0 -1))
   (when (key? "down") (try-move-player map 0 1))
@@ -21,8 +21,8 @@
 
 (defn try-move-player (map dx dy)
   (let
-    player (.fetch world 'player)
-    pos (.get-cmp world player Position)
+    player (.fetch :world 'player)
+    pos (.get-cmp :world player Position)
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
 
   ; block movement on walls
@@ -36,20 +36,20 @@
 ;;
 (defn main:init ()
   ; init the global world
-  (def world (World))
+  (def :world (World))
 
   ; init the map
   (let map (new-map-rooms-and-corridors))
-  (.save world 'map map)
+  (.save :world 'map map)
 
   ; init player and save its ref
   (let (px py) (.center (-> map ['rooms] [0])))
-  (let player (.add-entity world
+  (let player (.add-entity :world
     (Player)
     (.simple Renderable \@)
     (Position:new px py)
     (Viewshed:new (arr) 8)))
-  (.save world 'player player))
+  (.save :world 'player player))
 
 
 ;;
@@ -59,6 +59,6 @@
   (cls)
   (player-input)
   ;(draw-map (.fetch world 'map))
-  (let tiles [(.fetch world 'map) 'tiles])
+  (let tiles [(.fetch :world 'map) 'tiles])
   (draw-tiles tiles)
-  (sys:render world))
+  (sys:render :world))
