@@ -1,4 +1,5 @@
-#![windows_subsystem="windows"]
+// #![windows_subsystem = "windows"]
+
 bracket_lib::prelude::add_wasm_support!();
 
 mod api;
@@ -7,10 +8,8 @@ mod keycodes;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
-use glsp::{compile, RClassBuilder, RGlobal};
+use glsp::{compile, RGlobal};
 use glsp_interpreter::*;
-
-use crate::api::CommandQueue;
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
@@ -20,6 +19,7 @@ struct State {
 }
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
+        let mut len: usize = 0;
         self.interpreter.runtime.run(|| {
             match ctx.key {
                 Some(key) => {
@@ -34,7 +34,8 @@ impl GameState for State {
             self.interpreter.call_update();
 
             // Execute all deferred commands
-            let mut queue = CommandQueue::borrow_mut();
+            let mut queue = api::CommandQueue::borrow_mut();
+            len = queue.0.len();
             for command in queue.0.iter() {
                 match command {
                     GlspCommand::Cls => ctx.cls(),
@@ -55,6 +56,7 @@ impl GameState for State {
         });
 
         ctx.print(0, 0, ctx.fps);
+        ctx.print(0, 1, len);
     }
 }
 
@@ -86,7 +88,7 @@ fn main() -> BError {
         let res = glsp::load("./game/main.glsp")?;
 
         // globals
-        glsp::add_rglobal(CommandQueue::new());
+        glsp::add_rglobal(api::CommandQueue::new());
         glsp::add_rglobal(KeyPressed::new());
 
         // constants
@@ -98,13 +100,14 @@ fn main() -> BError {
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
+        glsp::bind_rfn("draw-tiles", &api::draw_tiles)?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;
 
         // rng
         glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
-        RClassBuilder::<RandomNumberGenerator>::new()
+        glsp::RClassBuilder::<RandomNumberGenerator>::new()
             .met("roll-dice", &RandomNumberGenerator::roll_dice)
             .met("range", &RandomNumberGenerator::range::<i32>)
             .build();

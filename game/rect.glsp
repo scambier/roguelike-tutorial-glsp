@@ -1,16 +1,3 @@
-(defstruct Renderable
-  glyph fg bg
-  (const simple (fn (glyph)
-    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
-
-(defstruct Position
-  x y)
-
-(defstruct Enemy
-  x y)
-
-(defstruct Player)
-
 (defclass Rect
   (field x1) (field x2) (field y1) (field y2)
 

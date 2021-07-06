@@ -1,0 +1,16 @@
+(defstruct Renderable
+  glyph fg bg
+  (const simple (fn (glyph)
+    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
+
+(defstruct Position
+  x y)
+
+(defstruct Enemy
+  x y)
+
+(defstruct Player)
+
+(defstruct Viewshed
+  visible-tiles range)
+

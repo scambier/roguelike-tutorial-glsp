@@ -1,24 +1,26 @@
-(load "game/structs.glsp")
+(load "game/components.glsp")
 (load "game/utils.glsp")
 (load "game/ecs.glsp")
 (load "game/systems.glsp")
 (load "game/map.glsp")
-
+(load "game/rect.glsp")
 
 ; input manager
 (defn player-input ()
-  (let player (.fetch world 'player))
-  (let pos (.get-cmp world player Position))
-  (when (key? "up") (try-move-player 0 -1))
-  (when (key? "down") (try-move-player 0 1))
-  (when (key? "left") (try-move-player -1 0))
-  (when (key? "right") (try-move-player 1 0))
+  (let
+    player (.fetch world 'player)
+    pos (.get-cmp world player Position)
+    map (.fetch world 'map))
+
+  (when (key? "up") (try-move-player map 0 -1))
+  (when (key? "down") (try-move-player map 0 1))
+  (when (key? "left") (try-move-player map -1 0))
+  (when (key? "right") (try-move-player map 1 0))
   (when (key? "escape") (exit)))
 
 
-(defn try-move-player (dx dy)
+(defn try-move-player (map dx dy)
   (let
-    map (.fetch world 'map)
     player (.fetch world 'player)
     pos (.get-cmp world player Position)
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
@@ -45,7 +47,8 @@
   (let player (.add-entity world
     (Player)
     (.simple Renderable \@)
-    (Position:new px py)))
+    (Position:new px py)
+    (Viewshed:new (arr) 8)))
   (.save world 'player player))
 
 
@@ -55,5 +58,7 @@
 (defn main:update ()
   (cls)
   (player-input)
-  (draw-map (.fetch world 'map))
+  ;(draw-map (.fetch world 'map))
+  (let tiles [(.fetch world 'map) 'tiles])
+  (draw-tiles tiles)
   (sys:render world))

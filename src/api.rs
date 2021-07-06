@@ -1,4 +1,4 @@
-use crate::keycodes::StrKeyCode;
+use crate::{keycodes::StrKeyCode, WIDTH};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 use std::str::FromStr;
@@ -79,4 +79,56 @@ pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
 
 pub fn exit() {
     CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
+}
+
+pub fn draw_tiles(tiles: Vec<Sym>) {
+    let mut x = 0;
+    let mut y = 0;
+    let wall = sym("wall").unwrap();
+    let floor = sym("floor").unwrap();
+    for tile in tiles {
+        // println!("{:?}", tile == wall);
+        match tile {
+            _ if tile == wall => {
+                set_char(
+                    x,
+                    y,
+                    '#',
+                    &RGB {
+                        r: 0.5,
+                        g: 0.5,
+                        b: 0.5,
+                    },
+                    &RGB {
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.0,
+                    },
+                );
+            }
+            _ if tile == floor => {
+                set_char(
+                    x,
+                    y,
+                    '.',
+                    &RGB {
+                        r: 0.2,
+                        g: 0.2,
+                        b: 0.2,
+                    },
+                    &RGB {
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.0,
+                    },
+                );
+            }
+            _ => (),
+        }
+        x += 1;
+        if x > (WIDTH - 1) {
+            x = 0;
+            y += 1;
+        }
+    }
 }
