@@ -58,18 +58,22 @@ impl GameState for State {
     }
 }
 
-embedded_resource!(TILE_FONT, "../resources/Unknown-curses-12x12.png");
+embedded_resource!(CURSES_12, "../resources/Unknown-curses-12x12.png");
+embedded_resource!(SB_16, "../resources/16x16-sb-ascii.png");
 
 fn main() -> BError {
-    link_resource!(TILE_FONT, "resources/Unknown-curses-12x12.png");
+    link_resource!(CURSES_12, "resources/Unknown-curses-12x12.png");
+    link_resource!(SB_16, "resources/16x16-sb-ascii.png");
 
     let context = BTermBuilder::new()
         .with_title("Roguelike Tutorial")
         .with_dimensions(WIDTH, HEIGHT)
         .with_vsync(false)
-        .with_tile_dimensions(12, 12)
-        .with_font("Unknown-curses-12x12.png", 12, 12)
-        .with_simple_console(WIDTH, HEIGHT, "Unknown-curses-12x12.png")
+        .with_tile_dimensions(16, 16)
+        // .with_font("Unknown-curses-12x12.png", 12, 12)
+        // .with_simple_console(WIDTH, HEIGHT, "Unknown-curses-12x12.png")
+        .with_font("16x16-sb-ascii.png", 16, 16)
+        .with_simple_console(WIDTH, HEIGHT, "16x16-sb-ascii.png")
         .build()?;
 
     let interpreter = GlspInterpreter::new();
