@@ -5,11 +5,14 @@ bracket_lib::prelude::add_wasm_support!();
 mod api;
 mod glsp_interpreter;
 mod keycodes;
+mod map;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
 use glsp::{compile, RGlobal};
 use glsp_interpreter::*;
+
+use crate::map::Map;
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
@@ -100,10 +103,13 @@ fn main() -> BError {
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
-        glsp::bind_rfn("draw-tiles", &api::draw_tiles)?;
+        Map::inject_into_runtime()?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;
+
+        // map
+        // Map::inject_into_runtime();
 
         // rng
         glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;

@@ -1,4 +1,3 @@
-
 use strum_macros::EnumString;
 
 #[derive(Debug, Hash, Ord, PartialOrd, PartialEq, Eq, Clone, Copy, EnumString)]

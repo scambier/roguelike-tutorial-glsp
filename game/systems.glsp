@@ -1,7 +1,0 @@
-; rendering system
-(defn sys:render (world)
-  (for (entity (pos render)) in (.query world Position Renderable)
-    (set [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg])))
-
-(defn sys:visibility (world)
-  (for (entity ()) in (.query world Position Viewshed)))

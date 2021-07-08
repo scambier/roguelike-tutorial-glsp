@@ -1,0 +1,3 @@
+(defn sys:visibility (world)
+  (for (entity (position viewshed)) in (.query world Position Viewshed)
+    (clear! [viewshed 'visible-tiles])))

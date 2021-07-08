@@ -1,41 +1,3 @@
-(defclass Map
-  (field tiles)
-  (field rooms)
-  (field width)
-  (field height)
-
-
-  (init (@width @height)
-    (= @tiles (arr-from-elem 'wall (* @width @height)))
-    (= @rooms (arr)))
-
-
-  (met xy-idx (x y)
-    (+ (* y @width) x))
-
-
-  (met apply-room-to-map (room)
-    (forni (y (+ 1 [room 'y1]) [room 'y2])
-      (forni (x (+ 1 [room 'x1]) [room 'x2])
-        (= [@tiles (@xy-idx x y)] 'floor))))
-
-
-  (met apply-horizontal-tunnel (x1 x2 y)
-    (forni (x (min x1 x2) (max x1 x2))
-      (let idx (@xy-idx x y))
-      ; keep corridor within map range
-      (when (and (> idx 0) (< idx (* @width @height)))
-        (= [@tiles idx] 'floor))))
-
-
-  (met apply-vertical-tunnel (y1 y2 x)
-    (forni (y (min y1 y2) (max y1 y2))
-      (let idx (@xy-idx x y))
-      ; keep corridor within map range
-      (when (and (> idx 0) (< idx (* @width @height)))
-        (= [@tiles idx] 'floor)))))
-
-
 (defn new-map-rooms-and-corridors ()
   (let
     map (Map :width :height),
@@ -51,15 +13,16 @@
       new-room (Rect x y w h)
       ok #t)
 
-    (for other_room in [map 'rooms]
+    (let rooms (.get-rooms map))
+    (for other_room in rooms
       (when (.intersect? new-room other_room) (= ok #f)))
 
     (when ok
-      (.apply-room-to-map map new-room)
-      (unless (empty? [map 'rooms])
+      (.apply-room map new-room)
+      (unless (empty? rooms)
         (let
           (new-x new-y) (.center new-room)
-          (prev-x prev-y) (.center (last-item [map 'rooms])))
+          (prev-x prev-y) (.center (last-item rooms)))
 
         (if (eq? (.range rng 0 2) 1)
           (do
@@ -70,21 +33,5 @@
             (.apply-vertical-tunnel map prev-y new-y prev-x)
             (.apply-horizontal-tunnel map prev-x new-x new-y))))
 
-
-      (push! [map 'rooms] new-room)))
+      (.add-room map new-room)))
   map)
-
-(defn draw-map (map)
-  (let x 0)
-  (let y 0)
-  (for tile in [map 'tiles]
-    (match tile
-      ('floor
-        (set x y \. (Color 0.2 0.2 0.2) (Color 0 0 0)))
-      ('wall
-        (set x y \# (Color 0.5 0.5 0.5) (Color 0 0 0))))
-    ; move coords
-    (inc! x)
-    (when (> x (- :width 1))
-      (= x 0)
-      (inc! y))))

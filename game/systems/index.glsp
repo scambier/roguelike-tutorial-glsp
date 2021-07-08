@@ -1,0 +1,2 @@
+(load "game/systems/render_system.glsp")
+(load "game/systems/visibility_system.glsp")

@@ -1,9 +1,8 @@
 (load "game/components.glsp")
 (load "game/utils.glsp")
 (load "game/ecs.glsp")
-(load "game/systems.glsp")
+(load "game/systems/index.glsp")
 (load "game/map.glsp")
-(load "game/rect.glsp")
 
 ; input manager
 (defn player-input ()
@@ -26,7 +25,7 @@
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
 
   ; block movement on walls
-  (unless (eq? (-> [map 'tiles] [destination]) 'wall)
+  (when (.is-walkable map destination)
     (= [pos 'x] (min (- [map 'width] 1) (max 0 (+ [pos 'x] dx))))
     (= [pos 'y] (min (- [map 'height] 1) (max 0 (+ [pos 'y] dy))))))
 
@@ -43,12 +42,15 @@
   (.save :world 'map map)
 
   ; init player and save its ref
-  (let (px py) (.center (-> map ['rooms] [0])))
-  (let player (.add-entity :world
-    (Player)
-    (.simple Renderable \@)
-    (Position:new px py)
-    (Viewshed:new (arr) 8)))
+  (let (px py) (.center [(.get-rooms map) 0]))
+  (let player
+    (.add-entity
+      :world
+      (Player)
+      (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
+      (Position (x px) (y py))
+      (Viewshed (visible-tiles (arr)) (range 8))))
+
   (.save :world 'player player))
 
 
@@ -59,6 +61,6 @@
   (cls)
   (player-input)
   ;(draw-map (.fetch world 'map))
-  (let tiles [(.fetch :world 'map) 'tiles])
-  (draw-tiles tiles)
-  (sys:render :world))
+  (draw-map (.fetch :world 'map))
+  (sys:render :world)
+  (sys:visibility :world))
