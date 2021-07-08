@@ -3,13 +3,6 @@ use bracket_lib::prelude::*;
 use glsp::prelude::*;
 use std::str::FromStr;
 
-fn _to_i32(n: Num) -> i32 {
-    match n {
-        Num::Flo(n) => n as i32,
-        Num::Int(n) => n,
-    }
-}
-
 pub struct CommandQueue(pub Vec<GlspCommand>);
 impl CommandQueue {
     pub fn new() -> Self {
@@ -79,4 +72,26 @@ pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
 
 pub fn exit() {
     CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
+}
+
+pub fn bind_geometry() -> GResult<()> {
+    // Rect
+    glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
+    glsp::RClassBuilder::<Rect>::new()
+        .met("intersect?", &Rect::intersect)
+        .met("center", &|rect: &Rect| {
+            let center = rect.center();
+            vec![center.x, center.y]
+        })
+        .build();
+
+    // Point
+    glsp::bind_rfn("Point", &Point::new::<i32>)?;
+    glsp::RClassBuilder::<Point>::new()
+        .prop_get("x", &|r: &Point| r.x)
+        .prop_set("x", &|r: &mut Point, x:i32| r.x = x)
+        .prop_get("y", &|r: &Point| r.y)
+        .prop_set("y", &|r: &mut Point, y:i32| r.y = y)
+        .build();
+    Ok(())
 }

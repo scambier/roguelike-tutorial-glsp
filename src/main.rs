@@ -90,7 +90,7 @@ fn main() -> BError {
         #[cfg(not(feature = "compiler"))]
         let res = glsp::load("./game/main.glsp")?;
 
-        // globals
+        // internals
         glsp::add_rglobal(api::CommandQueue::new());
         glsp::add_rglobal(KeyPressed::new());
 
@@ -103,13 +103,11 @@ fn main() -> BError {
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
-        Map::inject_into_runtime()?;
+        Map::bind_map()?;
+        api::bind_geometry()?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;
-
-        // map
-        // Map::inject_into_runtime();
 
         // rng
         glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;

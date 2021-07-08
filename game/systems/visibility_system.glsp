@@ -1,3 +1,17 @@
 (defn sys:visibility (world)
-  (for (entity (position viewshed)) in (.query world Position Viewshed)
-    (clear! [viewshed 'visible-tiles])))
+  (let map (.fetch world 'map))
+  (let player (.fetch world 'player))
+
+  (for (entity (pos viewshed)) in (.query world Position Viewshed)
+    (clear! [viewshed 'visible-tiles])
+    (= [viewshed 'visible-tiles] (.fov map [pos 'x] [pos 'y] [viewshed 'range]))
+    ; only keep points that are inside the map
+    (retain! (fn (p) (and
+                      (>= [p 'x] 0) (< [p 'x] [map 'width])
+                      (>= [p 'y] 0) (< [p 'y] [map 'height])))
+      [viewshed 'visible-tiles])
+
+    (when (eq? player entity)
+      (for vis in [viewshed 'visible-tiles]
+        (let idx (.xy-idx map [vis 'x] [vis 'y]))
+        (.reveal-tile map idx)))))

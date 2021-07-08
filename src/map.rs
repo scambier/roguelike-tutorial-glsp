@@ -26,13 +26,13 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub tiles: Vec<TileType>,
+    pub revealed_tiles: Vec<bool>,
     pub rooms: Vec<Rect>,
 }
 
 impl Map {
-    pub fn inject_into_runtime() -> GResult<()> {
+    pub fn bind_map() -> GResult<()> {
         glsp::bind_rfn("Map", &Map::new)?;
-        glsp::bind_rfn("draw-map", &draw_map)?;
         glsp::RClassBuilder::<Map>::new()
             .prop_get("width", &Map::get_width)
             .prop_get("height", &Map::get_height)
@@ -45,26 +45,22 @@ impl Map {
             .met("apply-horizontal-tunnel", &Map::apply_horizontal_tunnel)
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
             .met("is-walkable", &Map::is_walkable)
+            .met("fov", &Map::field_of_view_glsp)
+            .met("reveal-tile", &Map::reveal_tile)
             .build();
 
-        glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
-        glsp::RClassBuilder::<Rect>::new()
-            .met("intersect?", &Rect::intersect)
-            .met("center", &|rect: &Rect| {
-                let center = rect.center();
-                vec![center.x, center.y]
-            })
-            .build();
+        glsp::bind_rfn("draw-map", &draw_map)?;
+
         Ok(())
     }
 
     pub fn new(width: i32, height: i32) -> Self {
         let size = (width * height) as usize;
-        let tiles = vec![TileType::Wall; size];
         Map {
             width,
             height,
-            tiles,
+            tiles: vec![TileType::Wall; size],
+            revealed_tiles: vec![false; size],
             rooms: vec![],
         }
     }
@@ -119,6 +115,14 @@ impl Map {
     fn is_walkable(&self, idx: usize) -> bool {
         self.tiles[idx] == TileType::Floor
     }
+
+    fn field_of_view_glsp(&self, x: i32, y: i32, range: i32) -> Vec<Point> {
+        field_of_view(Point { x, y }, range, self)
+    }
+
+    fn reveal_tile(&mut self, idx: usize) {
+        self.revealed_tiles[idx] = true;
+    }
 }
 
 impl Algorithm2D for Map {
@@ -137,49 +141,34 @@ impl BaseMap for Map {
 }
 
 pub fn draw_map(map: &Map) {
-    let tiles = map.tiles.iter();
     let mut x = 0;
     let mut y = 0;
     // let wall = sym("wall").unwrap();
     // let floor = sym("floor").unwrap();
-    for tile in tiles {
-        // println!("{:?}", tile == wall);
-        match tile {
-            TileType::Wall => {
-                set_char(
-                    x,
-                    y,
-                    '#',
-                    &RGB {
-                        r: 0.5,
-                        g: 0.5,
-                        b: 0.5,
-                    },
-                    &RGB {
-                        r: 0.0,
-                        g: 0.0,
-                        b: 0.0,
-                    },
-                );
+    for (idx, tile) in map.tiles.iter().enumerate() {
+        if map.revealed_tiles[idx] {
+            // println!("{:?}", tile == wall);
+            match tile {
+                TileType::Wall => {
+                    set_char(
+                        x,
+                        y,
+                        '#',
+                        &RGB::named(GREY50),
+                        &RGB::named(BLACK),
+                    );
+                }
+                TileType::Floor => {
+                    set_char(
+                        x,
+                        y,
+                        '.',
+                        &RGB::named(GREY20),
+                        &RGB::named(BLACK),
+                    );
+                }
+                _ => (),
             }
-            TileType::Floor => {
-                set_char(
-                    x,
-                    y,
-                    '.',
-                    &RGB {
-                        r: 0.2,
-                        g: 0.2,
-                        b: 0.2,
-                    },
-                    &RGB {
-                        r: 0.0,
-                        g: 0.0,
-                        b: 0.0,
-                    },
-                );
-            }
-            _ => (),
         }
         x += 1;
         if x > (map.width - 1) {
@@ -188,5 +177,3 @@ pub fn draw_map(map: &Map) {
         }
     }
 }
-
-pub fn field_of_view(x: Num, y: Num, range: Num) {}
