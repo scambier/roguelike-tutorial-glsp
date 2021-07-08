@@ -37,5 +37,13 @@ Then, simply type `cargo run` to execute it.
 	- [ ] Optimize
 	- [ ] Implement cache
 - [x] Compile a self-contained executable (actually has issues with glsp files)
-- [ ] Web build (currently broken)
+- [x] Web build
 - [ ] Live reload of glsp code
+
+## Build for the web
+
+```sh
+$ cargo build --release --target wasm32-unknown-unknown --features "compiler"
+$ wasm-bindgen target\wasm32-unknown-unknown\release\roguelike-glsp.wasm --ou
+t-dir wasm --no-modules --no-typescript
+```

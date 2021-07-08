@@ -1,6 +1,6 @@
 // #![windows_subsystem = "windows"]
 
-bracket_lib::prelude::add_wasm_support!();
+// bracket_lib::prelude::add_wasm_support!();
 
 mod api;
 mod glsp_interpreter;

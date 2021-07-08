@@ -1,2 +1,4 @@
 /target
 /.history
+/wasm/*.js
+/wasm/*.wasm
