@@ -3,29 +3,12 @@ use glsp::prelude::*;
 use std::cmp::{max, min};
 
 use crate::api::set_char;
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum TileType {
-    Floor,
-    Wall,
-}
-
-impl TileType {
-    pub fn from(symbol: Sym) {
-        let wall = sym("wall").unwrap();
-        let floor = sym("floor").unwrap();
-        match symbol {
-            _ if symbol == wall => TileType::Wall,
-            _ if symbol == floor => TileType::Floor,
-            _ => TileType::Wall,
-        };
-    }
-}
+use crate::tile::{*, Tile};
 
 pub struct Map {
     pub width: i32,
     pub height: i32,
-    pub tiles: Vec<TileType>,
+    pub tiles: Vec<Tile>,
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
     pub rooms: Vec<Rect>,
@@ -64,7 +47,7 @@ impl Map {
         Map {
             width,
             height,
-            tiles: vec![TileType::Wall; size],
+            tiles: vec![Tile::wall(); size],
             revealed_tiles: vec![false; size],
             visible_tiles: vec![false; size],
             rooms: vec![],
@@ -95,7 +78,7 @@ impl Map {
         for y in room.y1 + 1..=room.y2 {
             for x in room.x1 + 1..=room.x2 {
                 let idx = self.xy_idx(x, y);
-                self.tiles[idx] = TileType::Floor;
+                self.tiles[idx] = Tile::floor();
             }
         }
     }
@@ -104,7 +87,7 @@ impl Map {
         for x in min(x1, x2)..=max(x1, x2) {
             let idx = self.xy_idx(x, y);
             if idx > 0 && idx < self.width as usize * self.height as usize {
-                self.tiles[idx as usize] = TileType::Floor;
+                self.tiles[idx as usize] = Tile::floor();
             }
         }
     }
@@ -113,13 +96,13 @@ impl Map {
         for y in min(y1, y2)..=max(y1, y2) {
             let idx = self.xy_idx(x, y);
             if idx > 0 && idx < self.width as usize * self.height as usize {
-                self.tiles[idx as usize] = TileType::Floor;
+                self.tiles[idx as usize] = Tile::floor();
             }
         }
     }
 
     fn is_walkable(&self, idx: usize) -> bool {
-        self.tiles[idx] == TileType::Floor
+        self.tiles[idx].tile_type == TileType::Floor
     }
 
     fn field_of_view_glsp(&self, x: i32, y: i32, range: i32) -> Vec<Point> {
@@ -146,7 +129,7 @@ impl Algorithm2D for Map {
 
 impl BaseMap for Map {
     fn is_opaque(&self, idx: usize) -> bool {
-        self.tiles[idx] == TileType::Wall
+        self.tiles[idx].tile_type == TileType::Wall
     }
 }
 
@@ -158,25 +141,17 @@ pub fn draw_map(map: &Map) {
     for (idx, tile) in map.tiles.iter().enumerate() {
         if map.revealed_tiles[idx] {
             // println!("{:?}", tile == wall);
-            match tile {
-                TileType::Wall => {
-                    let col = if map.visible_tiles[idx] {
-                        RGB::named(LIGHT_BLUE)
-                    } else {
-                        RGB::named(GREY50)
-                    };
-                    set_char(x, y, '#', &col, &RGB::named(BLACK));
-                }
-                TileType::Floor => {
-                    let col = if map.visible_tiles[idx] {
-                        RGB::named(GREY50)
-                    } else {
-                        RGB::named(GREY10)
-                    };
-                    set_char(x, y, '.', &col, &RGB::named(BLACK));
-                }
-                _ => (),
-            }
+            let fg = if map.visible_tiles[idx] {
+                tile.fg_lit
+            } else {
+                tile.fg
+            };
+            let bg = if map.visible_tiles[idx] {
+                tile.bg_lit
+            } else {
+                tile.bg
+            };
+            set_char(x, y, tile.glyph, &fg, &bg);
         }
         x += 1;
         if x > (map.width - 1) {

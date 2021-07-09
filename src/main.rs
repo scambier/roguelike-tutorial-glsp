@@ -6,6 +6,7 @@ mod api;
 mod glsp_interpreter;
 mod keycodes;
 mod map;
+mod tile;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
