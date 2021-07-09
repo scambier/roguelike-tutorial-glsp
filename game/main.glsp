@@ -42,7 +42,8 @@
   (.save :world 'map map)
 
   ; init player and save its ref
-  (let (px py) (.center [(.get-rooms map) 0]))
+  (let rooms (.get-rooms map))
+  (let (px py) (.center [rooms 0]))
   (let player
     (.add-entity
       :world
@@ -50,8 +51,15 @@
       (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
       (Position (x px) (y py))
       (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))))
+  (.save :world 'player player)
 
-  (.save :world 'player player))
+  ; init the monsters
+  (for room in (skip 1 rooms)
+    (let (x y) (.center room))
+    (.add-entity :world
+      (Position x y)
+      (Renderable (glyph \g) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
+      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t)))))
 
 
 ;;
