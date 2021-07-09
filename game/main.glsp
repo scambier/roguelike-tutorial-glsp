@@ -21,8 +21,7 @@
 (defn try-move-player (map dx dy)
   (let
     player (.fetch :world 'player)
-    pos (.get-cmp :world player Position)
-    viewshed (.get-cmp :world player Viewshed)
+    (pos, viewshed) (.get-cmp :world player Position Viewshed)
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
 
   ; block movement on walls
