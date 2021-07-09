@@ -3,15 +3,24 @@
   (let player (.fetch world 'player))
 
   (for (entity (pos viewshed)) in (.query world Position Viewshed)
-    (clear! [viewshed 'visible-tiles])
-    (= [viewshed 'visible-tiles] (.fov map [pos 'x] [pos 'y] [viewshed 'range]))
-    ; only keep points that are inside the map
-    (retain! (fn (p) (and
-                      (>= [p 'x] 0) (< [p 'x] [map 'width])
-                      (>= [p 'y] 0) (< [p 'y] [map 'height])))
-      [viewshed 'visible-tiles])
+    (when (eq? [viewshed 'dirty] #t)
+      (= [viewshed 'dirty] #f)
 
+      ; calculate the current viewshed
+      (clear! [viewshed 'visible-tiles])
+      (= [viewshed 'visible-tiles] (.fov map [pos 'x] [pos 'y] [viewshed 'range]))
+      ; only keep points that are inside the map
+      (retain! (fn1 (and
+                        (>= [_ 'x] 0) (< [_ 'x] [map 'width])
+                        (>= [_ 'y] 0) (< [_ 'y] [map 'height])))
+        [viewshed 'visible-tiles]))
+
+    ; if the current entity is the player,
     (when (eq? player entity)
+      ; clear current visible tiles
+      (.clear-visible-tiles! map)
+      ; apply the viewshed on the map
       (for vis in [viewshed 'visible-tiles]
         (let idx (.xy-idx map [vis 'x] [vis 'y]))
-        (.reveal-tile map idx)))))
+        (.reveal-tile! map idx)
+        (.show-tile! map idx)))))

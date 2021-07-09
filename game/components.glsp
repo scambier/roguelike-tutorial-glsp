@@ -12,5 +12,7 @@
 (defstruct Player)
 
 (defstruct Viewshed
-  visible-tiles range)
+  visible-tiles
+  range
+  dirty)
 

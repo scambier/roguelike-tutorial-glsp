@@ -27,6 +27,7 @@ pub struct Map {
     pub height: i32,
     pub tiles: Vec<TileType>,
     pub revealed_tiles: Vec<bool>,
+    pub visible_tiles: Vec<bool>,
     pub rooms: Vec<Rect>,
 }
 
@@ -46,7 +47,11 @@ impl Map {
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
             .met("is-walkable", &Map::is_walkable)
             .met("fov", &Map::field_of_view_glsp)
-            .met("reveal-tile", &Map::reveal_tile)
+            .met("reveal-tile!", &Map::add_tile_to_revealed)
+            .met("show-tile!", &Map::add_tile_to_visible)
+            .met("clear-visible-tiles!", &|map: &mut Map| {
+                map.visible_tiles.iter_mut().for_each(|t| *t = false)
+            })
             .build();
 
         glsp::bind_rfn("draw-map", &draw_map)?;
@@ -61,6 +66,7 @@ impl Map {
             height,
             tiles: vec![TileType::Wall; size],
             revealed_tiles: vec![false; size],
+            visible_tiles: vec![false; size],
             rooms: vec![],
         }
     }
@@ -120,8 +126,12 @@ impl Map {
         field_of_view(Point { x, y }, range, self)
     }
 
-    fn reveal_tile(&mut self, idx: usize) {
+    fn add_tile_to_revealed(&mut self, idx: usize) {
         self.revealed_tiles[idx] = true;
+    }
+
+    fn add_tile_to_visible(&mut self, idx: usize) {
+        self.visible_tiles[idx] = true;
     }
 }
 
@@ -150,22 +160,20 @@ pub fn draw_map(map: &Map) {
             // println!("{:?}", tile == wall);
             match tile {
                 TileType::Wall => {
-                    set_char(
-                        x,
-                        y,
-                        '#',
-                        &RGB::named(GREY50),
-                        &RGB::named(BLACK),
-                    );
+                    let col = if map.visible_tiles[idx] {
+                        RGB::named(LIGHT_BLUE)
+                    } else {
+                        RGB::named(GREY50)
+                    };
+                    set_char(x, y, '#', &col, &RGB::named(BLACK));
                 }
                 TileType::Floor => {
-                    set_char(
-                        x,
-                        y,
-                        '.',
-                        &RGB::named(GREY20),
-                        &RGB::named(BLACK),
-                    );
+                    let col = if map.visible_tiles[idx] {
+                        RGB::named(GREY50)
+                    } else {
+                        RGB::named(GREY10)
+                    };
+                    set_char(x, y, '.', &col, &RGB::named(BLACK));
                 }
                 _ => (),
             }
