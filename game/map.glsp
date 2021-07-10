@@ -8,8 +8,8 @@
     (let
       w (.range rng min-size max-size)
       h (.range rng min-size max-size)
-      x (- (.roll-dice rng 1 (- [map 'width] w 1)) 1)
-      y (- (.roll-dice rng 1 (- [map 'height] h 1)) 1)
+      x (.roll-dice rng 1 (- [map 'width] w 1))
+      y (.roll-dice rng 1 (- [map 'height] h 1))
       new-room (Rect x y w h)
       ok #t)
 
