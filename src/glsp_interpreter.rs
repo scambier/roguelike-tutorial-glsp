@@ -32,7 +32,7 @@ impl GlspInterpreter {
     }
 
     pub fn call_update(&self) {
-        let cb_update = match glsp::global::<_, Val>("main:update") {
+        let cb_update = match glsp::global("main:update") {
             Ok(Val::GFn(update)) => update,
             Ok(val) => {
                 panic!("Invalid update callback:\n{:}", val);

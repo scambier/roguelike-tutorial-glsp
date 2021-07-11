@@ -3,7 +3,7 @@ use glsp::prelude::*;
 use std::cmp::{max, min};
 
 use crate::api::set_char;
-use crate::tile::{*, Tile};
+use crate::tile::{Tile, *};
 
 pub struct Map {
     pub width: i32,

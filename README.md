@@ -40,10 +40,17 @@ Then, simply type `cargo run` to execute it.
 - [x] Web build
 - [ ] Live reload of glsp code
 
-## Build for the web
+## Builds
+
+## Standalone binary
+
+```sh
+$ cargo build --release --features "compiler"
+```
+
+### Web
 
 ```sh
 $ cargo build --release --target wasm32-unknown-unknown --features "compiler"
-$ wasm-bindgen target\wasm32-unknown-unknown\release\roguelike-glsp.wasm --ou
-t-dir wasm --no-modules --no-typescript
+$ wasm-bindgen target\wasm32-unknown-unknown\release\roguelike-glsp.wasm --out-dir wasm --no-modules --no-typescript
 ```

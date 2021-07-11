@@ -7,13 +7,14 @@ mod glsp_interpreter;
 mod keycodes;
 mod map;
 mod tile;
+mod ecs;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
 use glsp::{compile, RGlobal};
 use glsp_interpreter::*;
 
-use crate::map::Map;
+use crate::{ecs::World, map::Map};
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
@@ -106,6 +107,7 @@ fn main() -> BError {
         glsp::bind_rfn("exit", &api::exit)?;
         Map::bind_map()?;
         api::bind_geometry()?;
+        World::bind_world()?;
 
         // colors
         glsp::bind_rfn("Color", &api::rgb_color)?;

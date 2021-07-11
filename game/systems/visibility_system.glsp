@@ -2,7 +2,7 @@
   (let map (.fetch world 'map))
   (let player (.fetch world 'player))
 
-  (for (entity (pos viewshed)) in (.query world Position Viewshed)
+  (for (entity (pos viewshed)) in (.query world (arr Position Viewshed))
     (when (eq? [viewshed 'dirty] #t)
       (= [viewshed 'dirty] #f)
 

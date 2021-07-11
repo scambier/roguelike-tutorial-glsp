@@ -1,6 +1,5 @@
 (load "game/components.glsp")
 (load "game/utils.glsp")
-(load "game/ecs.glsp")
 (load "game/systems/index.glsp")
 (load "game/map.glsp")
 
@@ -8,7 +7,7 @@
 (defn player-input ()
   (let
     player (.fetch :world 'player)
-    pos (.get-cmp :world player Position)
+    pos (.get-cmp :world player (arr Position))
     map (.fetch :world 'map))
 
   (when (key? "up") (try-move-player map 0 -1))
@@ -21,7 +20,7 @@
 (defn try-move-player (map dx dy)
   (let
     player (.fetch :world 'player)
-    (pos, viewshed) (.get-cmp :world player Position Viewshed)
+    (pos, viewshed) (.get-cmp :world player (arr Position Viewshed))
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
 
   ; block movement on walls
@@ -35,7 +34,8 @@
 ;;
 (defn main:init ()
   ; init the global world
-  (def :world (World))
+  ; (def :world (World))
+  (def :world (World2))
 
   ; init the map
   (let map (new-map-rooms-and-corridors))
@@ -47,19 +47,21 @@
   (let player
     (.add-entity
       :world
-      (Player)
-      (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
-      (Position (x px) (y py))
-      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))))
+      (arr
+        (Player)
+        (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
+        (Position (x px) (y py))
+        (Viewshed (visible-tiles (arr)) (range 8) (dirty #t)))))
   (.save :world 'player player)
 
   ; init the monsters
   (for room in (skip 1 rooms)
     (let (x y) (.center room))
     (.add-entity :world
-      (Position x y)
-      (Renderable (glyph \g) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
-      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t)))))
+      (arr
+        (Position x y)
+        (Renderable (glyph \g) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
+        (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))))))
 
 
 ;;
@@ -68,7 +70,6 @@
 (defn main:update ()
   (cls)
   (player-input)
-  ;(draw-map (.fetch world 'map))
   (draw-map (.fetch :world 'map))
   (sys:render :world)
   (sys:visibility :world))
