@@ -35,7 +35,7 @@ impl Tile {
             glyph: '#',
             bg: RGB::named(BLACK),
             bg_lit: RGB::named(BLACK),
-            fg: RGB::named(GREY50),
+            fg: RGB::named(GREY20),
             fg_lit: RGB::named(ORANGE3),
         }
     }
@@ -46,7 +46,7 @@ impl Tile {
             bg: RGB::named(BLACK),
             bg_lit: RGB::named(BLACK),
             fg: RGB::named(GREY10),
-            fg_lit: RGB::from_hex("#1b1200").unwrap(),
+            fg_lit: RGB::named(GREY50),
         }
     }
 }

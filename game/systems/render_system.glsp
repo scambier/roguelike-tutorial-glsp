@@ -1,3 +1,6 @@
 (defn sys:render (world)
-  (for (entity (pos render)) in (.query world (arr Position Renderable))
-    (set [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg])))
+  (let map (.fetch world 'map))
+  (for (entity (pos render)) in (query world  Position Renderable)
+    (let idx (.xy-idx map [pos 'x] [pos 'y]))
+    (when (.visible-tile? map idx)
+      (set [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg]))))

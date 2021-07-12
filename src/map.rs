@@ -30,8 +30,13 @@ impl Map {
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
             .met("is-walkable", &Map::is_walkable)
             .met("fov", &Map::field_of_view_glsp)
+
+            // Visible tiles
             .met("reveal-tile!", &Map::add_tile_to_revealed)
             .met("show-tile!", &Map::add_tile_to_visible)
+            .met("visible-tile?", &|map: &Map, idx: usize| -> bool {
+                map.visible_tiles[idx]
+            })
             .met("clear-visible-tiles!", &|map: &mut Map| {
                 map.visible_tiles.iter_mut().for_each(|t| *t = false)
             })

@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    hash::Hash,
-};
+use std::collections::HashMap;
 
 use glsp::prelude::*;
 
@@ -30,7 +27,6 @@ impl World {
     pub fn new() -> Self {
         World {
             entity_counter: 0,
-            // collections: HashMap::new(),
             entities: HashMap::new(),
             resources: HashMap::new(),
         }
@@ -40,7 +36,6 @@ impl World {
         self.entity_counter += 1;
         self.entities.insert(self.entity_counter, HashMap::new());
         self.add_components(self.entity_counter, components);
-        // println!("{:?}", self.entities);
         self.entity_counter
     }
 
@@ -81,7 +76,6 @@ impl World {
     }
 
     pub fn query(&self, types: Vec<Root<Class>>) -> Vec<(i32, Vec<Root<Obj>>)> {
-        // println!("QUERY");
         let entities = self.get_entities(types.clone());
         let mut data = vec![];
         for e in entities {
@@ -95,7 +89,6 @@ impl World {
     }
 
     pub fn fetch(&self, key: Sym) -> Val {
-        let a = self.resources.get(&key);
-        a.unwrap().to_owned()
+        self.resources.get(&key).unwrap().to_owned()
     }
 }

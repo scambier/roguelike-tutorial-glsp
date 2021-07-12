@@ -60,8 +60,7 @@ impl GameState for State {
             Ok(())
         });
 
-        ctx.print(0, 0, ctx.fps);
-        ctx.print(0, 1, len);
+        ctx.print(0, 0, format!("{:} fps", ctx.fps));
     }
 }
 

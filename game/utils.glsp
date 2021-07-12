@@ -21,3 +21,17 @@
 
 (defn last-item (array)
   [array (- (len array) 1)])
+
+
+;
+; ECS syntactic sugar
+;
+
+(defn add-entity (world ..components)
+  (.add-entity world (arr ..components)))
+
+(defn query (world ..components)
+  (.query world (arr ..components)))
+
+(defn get-cmp (world entity ..components)
+  (.get-cmp world entity (arr ..components)))
