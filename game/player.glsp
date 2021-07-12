@@ -1,17 +1,20 @@
 ; input manager
+; returns #t if a key was pressed, #f otherwise
 (defn player-input (world)
   (let
     player (.fetch world 'player)
     pos (get-cmp world player Position)
     map (.fetch world 'map))
 
-  ; cardinals
-  (when (or (key? "up") (key? "numpad8") (key? "k")) (try-move-player map 0 -1))
-  (when (or (key? "down") (key? "numpad2") (key? "j")) (try-move-player map 0 1))
-  (when (or (key? "left") (key? "numpad4") (key? "h")) (try-move-player map -1 0))
-  (when (or (key? "right") (key? "numpad6") (key? "l")) (try-move-player map 1 0))
+  (match ctx:key
+    ((or "up" "numpad8" "k") (try-move-player map 0 -1))
+    ((or "down" "numpad2" "j") (try-move-player map 0 1))
+    ((or "left" "numpad4" "4") (try-move-player map -1 0))
+    ((or "right" "numpad6" "l") (try-move-player map 1 0))
+    ("escape" (exit))
+    (_ (return #f)))
 
-  (when (key? "escape") (exit)))
+  #t)
 
 
 (defn try-move-player (map dx dy)

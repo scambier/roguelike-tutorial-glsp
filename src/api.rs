@@ -13,7 +13,7 @@ impl CommandQueue {
 }
 impl RGlobal for CommandQueue {}
 
-pub struct KeyPressed(pub Option<VirtualKeyCode>);
+pub struct KeyPressed(pub Option<StrKeyCode>);
 impl KeyPressed {
     pub fn new() -> Self {
         KeyPressed { 0: None }
@@ -51,7 +51,7 @@ pub fn set_char(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
     CommandQueue::borrow_mut().0.push(command);
 }
 
-pub fn key_pressed(k: String) -> bool {
+pub fn is_key_pressed(k: String) -> bool {
     let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
     let rkey = KeyPressed::borrow().0;
     match (key, rkey) {
@@ -89,9 +89,9 @@ pub fn bind_geometry() -> GResult<()> {
     glsp::bind_rfn("Point", &Point::new::<i32>)?;
     glsp::RClassBuilder::<Point>::new()
         .prop_get("x", &|r: &Point| r.x)
-        .prop_set("x", &|r: &mut Point, x:i32| r.x = x)
+        .prop_set("x", &|r: &mut Point, x: i32| r.x = x)
         .prop_get("y", &|r: &Point| r.y)
-        .prop_set("y", &|r: &mut Point, y:i32| r.y = y)
+        .prop_set("y", &|r: &mut Point, y: i32| r.y = y)
         .build();
     Ok(())
 }

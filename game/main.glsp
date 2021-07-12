@@ -5,6 +5,23 @@
 (load "game/player.glsp")
 
 
+(defclass GameState
+  (fsm
+    ; all the work that needs to be done once per turn
+    (state* Running
+      (met on-step (world)
+        (sys:render world)
+        (sys:visibility world)
+        (sys:monster-ai world)
+        (@enab! 'Paused)))
+
+    ; what's happening when we wait for an input
+    (state Paused
+      (met on-step (world)
+        (let pressed (player-input world))
+        (when pressed
+          (@enab! 'Running))))))
+
 ;;
 ;; entry point
 ;;
@@ -12,6 +29,7 @@
   ; init the global world
   ; (def :world (World))
   (def :world (World2))
+  (def :state (GameState))
 
   ; init the map
   (let map (new-map-rooms-and-corridors))
@@ -36,15 +54,15 @@
       :world
       (Position x y)
       (Renderable (glyph \g) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
-      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t)))))
+      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))
+      (Monster))))
 
 
 ;;
 ;; update called every tick
 ;;
 (defn main:update ()
+  (.on-step :state :world)
   (cls)
-  (player-input :world)
   (draw-map (.fetch :world 'map))
-  (sys:render :world)
-  (sys:visibility :world))
+  (sys:render :world))

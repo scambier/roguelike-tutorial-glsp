@@ -7,10 +7,12 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
 getrandom = {version = "0.2", features = ["js"]}
 glsp = {version = "0.2.0", features = ["compiler"]}
 notify = "4.0.17"
-bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
+num-derive = "0.3.3"
+num-traits = "0.2.14"
 rust-embed = "5.9.0"
 strum = "0.21"
 strum_macros = "0.21"

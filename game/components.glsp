@@ -16,3 +16,4 @@
   range
   dirty)
 
+(defstruct Monster)

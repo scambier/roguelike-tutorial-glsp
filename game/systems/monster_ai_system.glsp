@@ -1,0 +1,3 @@
+(defn sys:monster-ai (world)
+  (for (e (viewshed position monster)) in (query world Viewshed Position Monster)
+    ))

@@ -3,18 +3,19 @@
 // bracket_lib::prelude::add_wasm_support!();
 
 mod api;
+mod ecs;
 mod glsp_interpreter;
 mod keycodes;
 mod map;
 mod tile;
-mod ecs;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
 use glsp::{compile, RGlobal};
 use glsp_interpreter::*;
+use num_traits::FromPrimitive;
 
-use crate::{ecs::World, map::Map};
+use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 50;
@@ -26,13 +27,15 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         let mut len: usize = 0;
         self.interpreter.runtime.run(|| {
-            match ctx.key {
-                Some(key) => {
-                    KeyPressed::borrow_mut().0.replace(key);
-                }
-                None => {
-                    KeyPressed::borrow_mut().0.take();
-                }
+            // Update the ctx:key global
+            if let Some(key) = ctx.key {
+                // convert VirtualKeyCode to StrKeyCode
+                let key: StrKeyCode = FromPrimitive::from_i32(key as i32).unwrap();
+                glsp::set_global("ctx:key", key.to_string().to_lowercase())?;
+                KeyPressed::borrow_mut().0.replace(key);
+            } else {
+                glsp::set_global("ctx:key", "")?;
+                KeyPressed::borrow_mut().0.take();
             }
 
             // Call the `(defn main:update)` function
@@ -100,9 +103,10 @@ fn main() -> BError {
         glsp::bind_global(":height", HEIGHT)?;
 
         // api
+        glsp::bind_global("ctx:key", "")?;
         glsp::bind_rfn("cls", &api::cls)?;
         glsp::bind_rfn("set", &api::set_char)?;
-        glsp::bind_rfn("key?", &api::key_pressed)?;
+        glsp::bind_rfn("key?", &api::is_key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
         Map::bind_map()?;
         api::bind_geometry()?;

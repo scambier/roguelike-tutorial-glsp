@@ -1,6 +1,7 @@
-use strum_macros::EnumString;
+use num_derive::FromPrimitive;
+use strum_macros::{EnumString, Display};
 
-#[derive(Debug, Hash, Ord, PartialOrd, PartialEq, Eq, Clone, Copy, EnumString)]
+#[derive(Debug, Hash, Ord, PartialOrd, PartialEq, Eq, Clone, Copy, EnumString, FromPrimitive, Display)]
 #[repr(u32)]
 #[strum(ascii_case_insensitive)]
 pub enum StrKeyCode {

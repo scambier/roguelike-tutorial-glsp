@@ -7,18 +7,6 @@ pub enum TileType {
     Wall,
 }
 
-impl TileType {
-    pub fn from(symbol: Sym) {
-        let wall = sym("wall").unwrap();
-        let floor = sym("floor").unwrap();
-        match symbol {
-            _ if symbol == wall => TileType::Wall,
-            _ if symbol == floor => TileType::Floor,
-            _ => TileType::Wall,
-        };
-    }
-}
-
 #[derive(Clone, Copy, PartialEq)]
 pub struct Tile {
     pub tile_type: TileType,
