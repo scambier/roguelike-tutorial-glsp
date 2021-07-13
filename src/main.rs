@@ -108,6 +108,7 @@ fn main() -> BError {
         glsp::bind_rfn("set", &api::set_char)?;
         glsp::bind_rfn("key?", &api::is_key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
+        glsp::bind_rfn("console:log", &console::log::<String>)?;
         Map::bind_map()?;
         api::bind_geometry()?;
         World::bind_world()?;

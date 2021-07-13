@@ -6,9 +6,16 @@
   (all? (fn (needle) (index-of a needle)) b))
 
 
+(defn neq? (..args)
+  (not (eq? ..args)))
+
 ; like `(position haystack needle)` but without the callback
 (defn index-of (haystack needle)
   (position haystack (fn (e) (eq? e needle))))
+
+(defn arr-contains? (haystack needle)
+  (let index (index-of haystack needle))
+  (and (neq? index #n) (>= index 0)))
 
 
 ; converts a value <0 >0 ==0 to symbols '< '> '==
@@ -34,4 +41,7 @@
   (.query world (arr ..components)))
 
 (defn get-cmp (world entity ..components)
-  (.get-cmp world entity (arr ..components)))
+  (let res (.get-cmp world entity (arr ..components)))
+  (if (eq? (len res) 1)
+    [res 0]
+    res))

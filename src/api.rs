@@ -88,10 +88,11 @@ pub fn bind_geometry() -> GResult<()> {
     // Point
     glsp::bind_rfn("Point", &Point::new::<i32>)?;
     glsp::RClassBuilder::<Point>::new()
-        .prop_get("x", &|r: &Point| r.x)
-        .prop_set("x", &|r: &mut Point, x: i32| r.x = x)
-        .prop_get("y", &|r: &Point| r.y)
-        .prop_set("y", &|r: &mut Point, y: i32| r.y = y)
+        .met("init", &|x: i32, y: i32| Point { x, y })
+        .prop_get("x", &|p: &Point| p.x)
+        .prop_set("x", &|p: &mut Point, x: i32| p.x = x)
+        .prop_get("y", &|p: &Point| p.y)
+        .prop_set("y", &|p: &mut Point, y: i32| p.y = y)
         .build();
     Ok(())
 }

@@ -1,7 +1,5 @@
 (defstruct Renderable
-  glyph fg bg
-  (const simple (fn (glyph)
-    (Renderable:new \@ (Color 1 1 1) (Color 0 0 0)))))
+  glyph fg bg)
 
 (defstruct Position
   x y)
@@ -17,3 +15,6 @@
   dirty)
 
 (defstruct Monster)
+
+(defstruct Name
+  name)

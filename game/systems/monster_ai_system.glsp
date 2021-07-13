@@ -1,3 +1,11 @@
 (defn sys:monster-ai (world)
-  (for (e (viewshed position monster)) in (query world Viewshed Position Monster)
-    ))
+  (let player (.fetch world 'player))
+  (let player-pos (get-cmp world player Position))
+  (for (e (viewshed position monster name)) in (query world Viewshed Position Monster Name)
+    ; convert the viewshed's tiles (rdata Points) into an array of Positions
+    ; TODO: try to do this in rust?
+    (let mapped
+      (arr ..(map (fn1 (Position (x [_ 'x]) (y [_ 'y])))
+              [viewshed 'visible-tiles])))
+    (when (arr-contains? mapped player-pos)
+      (console:log "{[name 'name]} growls at you"))))
