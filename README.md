@@ -2,7 +2,7 @@
 
 [Reddit](https://www.reddit.com/r/roguelikedev/comments/o5x585/roguelikedev_does_the_complete_roguelike_tutorial/) - [Twitter](https://twitter.com/GridSageGames/status/1407493165100113922?s=20)
 
-This (basic) roguelike is written in [GameLisp](https://gamelisp.rs/) on top of Rust & [bracket-lib](https://github.com/amethyst/bracket-lib).
+This (basic) roguelike is written in [GameLisp](https://gamelisp.rs/) on top of Rust & [bracket-lib](https://github.com/amethyst/bracket-lib). It roughly follows the [equivalent Rust tutorial](https://bfnightly.bracketproductions.com/rustbook/chapter_0.html).
 
 The goal of this project is not really to make a roguelike in itself, but to learn a lisp language, embed it within a Rust binary, and make a simple and reusable API.
 
@@ -19,9 +19,9 @@ Then, simply type `cargo run` to execute it.
 - [x] Part 0 - Setting up
 - [x] [Part 1](https://github.com/scambier/roguelike-tutorial-glsp/tree/2c2947a1557b69e87e5a94225f5c4964c90af878) - Drawing the ‘@’ symbol and moving it around
 - [x] Part 2 - The generic Entity, the render functions, and the map
-- [x] [Part 3](https://github.com/scambier/roguelike-tutorial-glsp/tree/c43611f3893810bf3e816cb2faa1ab2f1a5b21f6) - Generating a dungeon
+- [x] [Part 3](https://github.com/scambier/roguelike-tutorial-glsp/tree/c43611f3893810bf3e816cb2faa1ab2f1a5b21f6) - [Demo](https://scambier.xyz/roguelike/week2/) - Generating a dungeon
 - [x] Part 4 - Field of view
-- [ ] Part 5 - Placing enemies and kicking them (harmlessly)
+- [x] [Part 5](https://github.com/scambier/roguelike-tutorial-glsp/tree/f714bb11ea88a74e5c477cafcb81ed0a682d64e9) - [Demo](https://scambier.xyz/roguelike/week3/) - Placing enemies and kicking them (harmlessly)
 - [ ] Part 6 - Doing (and taking) some damage
 - [ ] Part 7 - Creating the Interface
 - [ ] Part 8 - Items and Inventory
