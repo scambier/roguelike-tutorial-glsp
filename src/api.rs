@@ -3,6 +3,23 @@ use bracket_lib::prelude::*;
 use glsp::prelude::*;
 use std::str::FromStr;
 
+#[derive(Debug)]
+pub enum GlspCommand {
+    Cls,
+    SetChar {
+        x: i32,
+        y: i32,
+        glyph: FontCharType,
+        fg: RGB,
+        bg: RGB,
+        console: usize,
+    },
+    SetConsole {
+        id: usize,
+    },
+    Exit,
+}
+
 pub struct CommandQueue(pub Vec<GlspCommand>);
 impl CommandQueue {
     pub fn new() -> Self {
@@ -21,82 +38,13 @@ impl KeyPressed {
 }
 impl RGlobal for KeyPressed {}
 
-#[derive(Debug)]
-pub enum GlspCommand {
-    Cls,
-    SetChar {
-        x: i32,
-        y: i32,
-        glyph: FontCharType,
-        fg: RGB,
-        bg: RGB,
-        console: usize,
-    },
-    SetConsole {
-        id: usize,
-    },
-    Exit,
-}
+pub fn bind_api() -> GResult<()> {
+    glsp::bind_rfn("console:log", &console::log::<String>)?;
+    glsp::bind_rfn("cls", &cls)?;
+    glsp::bind_rfn("set", &set_char_glsp)?;
+    glsp::bind_rfn("key?", &is_key_pressed)?;
+    glsp::bind_rfn("exit", &exit)?;
 
-pub fn cls() {
-    CommandQueue::borrow_mut().0.push(GlspCommand::Cls);
-}
-
-pub fn set_console(id: usize) {
-    CommandQueue::borrow_mut()
-        .0
-        .push(GlspCommand::SetConsole { id });
-}
-
-pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
-    let (console, glyph) = match glyph {
-        Val::Int(g) => (0, g as u16),
-        Val::Char(c) => (1, to_cp437(c)),
-        _ => {
-            panic!("invalid glyph")
-        }
-    };
-    set_char(x, y, glyph, fg, bg, console);
-}
-
-pub fn set_char(x: i32, y: i32, glyph: FontCharType, fg: &RGB, bg: &RGB, console: usize) {
-    let command = GlspCommand::SetChar {
-        x,
-        y,
-        glyph: glyph as FontCharType,
-        fg: *fg,
-        bg: *bg,
-        console,
-    };
-
-    // RGlobal queue
-    CommandQueue::borrow_mut().0.push(command);
-}
-
-pub fn is_key_pressed(k: String) -> bool {
-    let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
-    let rkey = KeyPressed::borrow().0;
-    match (key, rkey) {
-        (Ok(_), None) => false,
-        (Ok(key), Some(rkey)) => key as u32 == rkey as u32,
-        (Err(_), None) => false,
-        (Err(_), Some(_)) => false,
-    }
-}
-
-pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
-    RGB {
-        r: r.into_f32(),
-        g: g.into_f32(),
-        b: b.into_f32(),
-    }
-}
-
-pub fn exit() {
-    CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
-}
-
-pub fn bind_geometry() -> GResult<()> {
     // Rect
     glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
     glsp::RClassBuilder::<Rect>::new()
@@ -117,4 +65,69 @@ pub fn bind_geometry() -> GResult<()> {
         .prop_set("y", &|p: &mut Point, y: i32| p.y = y)
         .build();
     Ok(())
+}
+
+/// Clears all consoles
+pub fn cls() {
+    CommandQueue::borrow_mut().0.push(GlspCommand::Cls);
+}
+
+/// Sets console for the next draw call
+pub fn set_console(id: usize) {
+    CommandQueue::borrow_mut()
+        .0
+        .push(GlspCommand::SetConsole { id });
+}
+
+/// Draws a char on screen (glsp fn)
+pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
+    let (console, glyph) = match glyph {
+        Val::Int(g) => (0, g as u16),
+        Val::Char(c) => (1, to_cp437(c)),
+        _ => {
+            panic!("invalid glyph")
+        }
+    };
+    set_char(x, y, glyph, fg, bg, console);
+}
+
+/// Draws a char on screen (general fn)
+pub fn set_char(x: i32, y: i32, glyph: FontCharType, fg: &RGB, bg: &RGB, console: usize) {
+    let command = GlspCommand::SetChar {
+        x,
+        y,
+        glyph: glyph as FontCharType,
+        fg: *fg,
+        bg: *bg,
+        console,
+    };
+
+    // RGlobal queue
+    CommandQueue::borrow_mut().0.push(command);
+}
+
+/// Returns if a specific key is pressed for the current frame
+pub fn is_key_pressed(k: String) -> bool {
+    let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
+    let rkey = KeyPressed::borrow().0;
+    match (key, rkey) {
+        (Ok(_), None) => false,
+        (Ok(key), Some(rkey)) => key as u32 == rkey as u32,
+        (Err(_), None) => false,
+        (Err(_), Some(_)) => false,
+    }
+}
+
+/// Returns a color from 0-1 RBG values
+pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
+    RGB {
+        r: r.into_f32(),
+        g: g.into_f32(),
+        b: b.into_f32(),
+    }
+}
+
+/// Exits the game
+pub fn exit() {
+    CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
 }

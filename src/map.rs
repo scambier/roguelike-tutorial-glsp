@@ -160,7 +160,7 @@ pub fn draw_map(map: &Map) {
             } else {
                 tile.bg
             };
-            set_char(x, y, tile.glyph, &fg, &bg, 0);
+            set_char(x, y, tile.glyph, &fg, &bg, tile.console);
         }
         x += 1;
         if x > (map.width - 1) {

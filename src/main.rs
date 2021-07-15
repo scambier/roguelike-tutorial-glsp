@@ -18,8 +18,12 @@ use num_traits::FromPrimitive;
 
 use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
 
+// lazy_static! {
+//     pub static ref SEED: u64 = RandomNumberGenerator::new().rand();
+// }
+
 const WIDTH: i32 = 80;
-const HEIGHT: i32 = 50;
+const HEIGHT: i32 = 45;
 
 struct State {
     interpreter: GlspInterpreter,
@@ -67,7 +71,6 @@ impl GameState for State {
                         ctx.set(*x, *y, *fg, *bg, *glyph);
                     }
                     GlspCommand::Exit => ctx.quit(),
-                    _ => (),
                 };
             }
             queue.0.clear();
@@ -94,8 +97,8 @@ fn main() -> BError {
     let tile_size = 8;
     let context = BTermBuilder::new()
         .with_title("Roguelike Tutorial")
-        .with_dimensions(80, 45)
-        .with_tile_dimensions(tile_size*2, tile_size*2)
+        .with_dimensions(WIDTH, HEIGHT)
+        .with_tile_dimensions(tile_size * 2, tile_size * 2)
         // Console 0
         .with_font("MRMOTEXT_rexpaint.png", tile_size, tile_size)
         .with_simple_console(WIDTH, HEIGHT, "MRMOTEXT_rexpaint.png")
@@ -120,19 +123,14 @@ fn main() -> BError {
         glsp::add_rglobal(api::CommandQueue::new());
         glsp::add_rglobal(KeyPressed::new());
 
-        // constants
+        // constants & globals
+        glsp::bind_global("ctx:key", "")?;
         glsp::bind_global(":width", WIDTH)?;
         glsp::bind_global(":height", HEIGHT)?;
 
         // api
-        glsp::bind_global("ctx:key", "")?;
-        glsp::bind_rfn("cls", &api::cls)?;
-        glsp::bind_rfn("set", &api::set_char_glsp)?;
-        glsp::bind_rfn("key?", &api::is_key_pressed)?;
-        glsp::bind_rfn("exit", &api::exit)?;
-        glsp::bind_rfn("console:log", &console::log::<String>)?;
+        api::bind_api()?;
         Map::bind_map()?;
-        api::bind_geometry()?;
         World::bind_world()?;
 
         // colors
