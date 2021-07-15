@@ -21,7 +21,7 @@ Then, simply type `cargo run` to execute it.
 - [x] Part 2 - The generic Entity, the render functions, and the map
 - [x] [Part 3](https://github.com/scambier/roguelike-tutorial-glsp/tree/c43611f3893810bf3e816cb2faa1ab2f1a5b21f6) - [Demo](https://scambier.xyz/roguelike/week2/) - Generating a dungeon
 - [x] Part 4 - Field of view
-- [x] [Part 5](https://github.com/scambier/roguelike-tutorial-glsp/tree/f714bb11ea88a74e5c477cafcb81ed0a682d64e9) - [Demo](https://scambier.xyz/roguelike/week3/) - Placing enemies and kicking them (harmlessly)
+- [x] [Part 5](https://github.com/scambier/roguelike-tutorial-glsp/tree/adef553af912c3dbd033b7cd351cb0c88b1f3c53) - [Demo](https://scambier.xyz/roguelike/week3/) - Placing enemies and kicking them (harmlessly)
 - [ ] Part 6 - Doing (and taking) some damage
 - [ ] Part 7 - Creating the Interface
 - [ ] Part 8 - Items and Inventory
