@@ -2,3 +2,5 @@
 /.history
 /wasm/*.js
 /wasm/*.wasm
+resources/MRMOTEXT_rexpaint.png
+resources/MRMOTEXT_rexpaintx2.png

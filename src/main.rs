@@ -8,6 +8,7 @@ mod glsp_interpreter;
 mod keycodes;
 mod map;
 mod tile;
+mod utils;
 
 use api::{GlspCommand, KeyPressed};
 use bracket_lib::prelude::*;
@@ -26,6 +27,7 @@ struct State {
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         let mut len: usize = 0;
+
         self.interpreter.runtime.run(|| {
             // Update the ctx:key global
             if let Some(key) = ctx.key {
@@ -46,43 +48,63 @@ impl GameState for State {
             len = queue.0.len();
             for command in queue.0.iter() {
                 match command {
-                    GlspCommand::Cls => ctx.cls(),
+                    GlspCommand::Cls => {
+                        ctx.set_active_console(0);
+                        ctx.cls();
+                        ctx.set_active_console(1);
+                        ctx.cls();
+                    }
+                    GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
                     GlspCommand::SetChar {
                         x,
                         y,
                         glyph,
                         fg,
                         bg,
-                    } => ctx.set(*x, *y, *fg, *bg, *glyph),
+                        console,
+                    } => {
+                        ctx.set_active_console(*console);
+                        ctx.set(*x, *y, *fg, *bg, *glyph);
+                    }
                     GlspCommand::Exit => ctx.quit(),
-                }
+                    _ => (),
+                };
             }
             queue.0.clear();
 
             glsp::gc();
             Ok(())
         });
-
+        ctx.set_active_console(1);
         ctx.print(0, 0, format!("{:} fps", ctx.fps));
     }
 }
 
-embedded_resource!(CURSES_12, "../resources/Unknown-curses-12x12.png");
-embedded_resource!(SB_16, "../resources/16x16-sb-ascii.png");
+// embedded_resource!(CURSES_12, "../resources/Unknown-curses-12x12.png");
+// embedded_resource!(SB_16, "../resources/16x16-sb-ascii.png");
+embedded_resource!(MRMO, "../resources/MRMOTEXT_rexpaint.png");
+embedded_resource!(ACORN, "../resources/Acorntileset8x8.png");
 
 fn main() -> BError {
-    link_resource!(CURSES_12, "resources/Unknown-curses-12x12.png");
-    link_resource!(SB_16, "resources/16x16-sb-ascii.png");
+    // link_resource!(CURSES_12, "resources/Unknown-curses-12x12.png");
+    // link_resource!(SB_16, "resources/16x16-sb-ascii.png");
+    link_resource!(MRMO, "resources/MRMOTEXT_rexpaint.png");
+    link_resource!(ACORN, "resources/Acorntileset8x8.png");
 
+    let tile_size = 8;
     let context = BTermBuilder::new()
         .with_title("Roguelike Tutorial")
-        .with_dimensions(WIDTH, HEIGHT)
+        .with_dimensions(80, 45)
+        .with_tile_dimensions(tile_size*2, tile_size*2)
+        // Console 0
+        .with_font("MRMOTEXT_rexpaint.png", tile_size, tile_size)
+        .with_simple_console(WIDTH, HEIGHT, "MRMOTEXT_rexpaint.png")
+        // Console 1
+        .with_font("Acorntileset8x8.png", tile_size, tile_size)
+        .with_sparse_console_no_bg(WIDTH, HEIGHT, "Acorntileset8x8.png")
+        // Options
+        // .with_automatic_console_resize(true)
         .with_vsync(false)
-        .with_tile_dimensions(16, 16)
-        // .with_font("Unknown-curses-12x12.png", 12, 12)
-        // .with_simple_console(WIDTH, HEIGHT, "Unknown-curses-12x12.png")
-        .with_font("16x16-sb-ascii.png", 16, 16)
-        .with_simple_console(WIDTH, HEIGHT, "16x16-sb-ascii.png")
         .build()?;
 
     let interpreter = GlspInterpreter::new();
@@ -105,7 +127,7 @@ fn main() -> BError {
         // api
         glsp::bind_global("ctx:key", "")?;
         glsp::bind_rfn("cls", &api::cls)?;
-        glsp::bind_rfn("set", &api::set_char)?;
+        glsp::bind_rfn("set", &api::set_char_glsp)?;
         glsp::bind_rfn("key?", &api::is_key_pressed)?;
         glsp::bind_rfn("exit", &api::exit)?;
         glsp::bind_rfn("console:log", &console::log::<String>)?;

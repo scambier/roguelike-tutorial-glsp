@@ -2,7 +2,7 @@ use bracket_lib::prelude::*;
 use glsp::prelude::*;
 use std::cmp::{max, min};
 
-use crate::api::set_char;
+use crate::api::*;
 use crate::tile::{Tile, *};
 
 pub struct Map {
@@ -49,10 +49,14 @@ impl Map {
 
     pub fn new(width: i32, height: i32) -> Self {
         let size = (width * height) as usize;
+        let mut tiles = vec![];
+        for _ in 0..size {
+            tiles.push(Tile::wall());
+        }
         Map {
             width,
             height,
-            tiles: vec![Tile::wall(); size],
+            tiles,
             revealed_tiles: vec![false; size],
             visible_tiles: vec![false; size],
             rooms: vec![],
@@ -156,7 +160,7 @@ pub fn draw_map(map: &Map) {
             } else {
                 tile.bg
             };
-            set_char(x, y, tile.glyph, &fg, &bg);
+            set_char(x, y, tile.glyph, &fg, &bg, 0);
         }
         x += 1;
         if x > (map.width - 1) {

@@ -21,14 +21,19 @@ impl KeyPressed {
 }
 impl RGlobal for KeyPressed {}
 
+#[derive(Debug)]
 pub enum GlspCommand {
     Cls,
     SetChar {
         x: i32,
         y: i32,
-        glyph: u16,
+        glyph: FontCharType,
         fg: RGB,
         bg: RGB,
+        console: usize,
+    },
+    SetConsole {
+        id: usize,
     },
     Exit,
 }
@@ -37,14 +42,31 @@ pub fn cls() {
     CommandQueue::borrow_mut().0.push(GlspCommand::Cls);
 }
 
-pub fn set_char(x: i32, y: i32, char: char, fg: &RGB, bg: &RGB) {
-    let glyph = to_cp437(char);
+pub fn set_console(id: usize) {
+    CommandQueue::borrow_mut()
+        .0
+        .push(GlspCommand::SetConsole { id });
+}
+
+pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
+    let (console, glyph) = match glyph {
+        Val::Int(g) => (0, g as u16),
+        Val::Char(c) => (1, to_cp437(c)),
+        _ => {
+            panic!("invalid glyph")
+        }
+    };
+    set_char(x, y, glyph, fg, bg, console);
+}
+
+pub fn set_char(x: i32, y: i32, glyph: FontCharType, fg: &RGB, bg: &RGB, console: usize) {
     let command = GlspCommand::SetChar {
         x,
         y,
-        glyph,
+        glyph: glyph as FontCharType,
         fg: *fg,
         bg: *bg,
+        console,
     };
 
     // RGlobal queue
