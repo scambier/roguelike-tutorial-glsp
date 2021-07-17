@@ -8,7 +8,8 @@ The goal of this project is not really to make a roguelike in itself, but to lea
 
 ## Run the game
 
-You'll need to [install Rust](https://www.rust-lang.org/tools/install).
+a) You'll need to [install Rust](https://www.rust-lang.org/tools/install).  
+b) The [MRMOTEXT tileset](https://mrmotarius.itch.io/mrmotext) tileset is required. Extract the `MRMOTEXT_rexpaint.png` file in the `resources` folder.
 
 Then, simply type `cargo run` to execute it.
 
