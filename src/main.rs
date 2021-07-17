@@ -10,9 +10,8 @@ mod map;
 mod tile;
 mod utils;
 
-use api::{GlspCommand, KeyPressed};
+use api::GlspCommand;
 use bracket_lib::prelude::*;
-use glsp::{compile, RGlobal};
 use glsp_interpreter::*;
 use num_traits::FromPrimitive;
 
@@ -30,62 +29,7 @@ struct State {
 }
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-        let mut len: usize = 0;
-
-        self.interpreter.runtime.run(|| {
-            // Update the ctx:key global
-            if let Some(key) = ctx.key {
-                // convert VirtualKeyCode to StrKeyCode
-                let key: StrKeyCode = FromPrimitive::from_i32(key as i32).unwrap();
-                glsp::set_global("ctx:key", key.to_string().to_lowercase())?;
-                KeyPressed::borrow_mut().0.replace(key);
-            } else {
-                glsp::set_global("ctx:key", "")?;
-                KeyPressed::borrow_mut().0.take();
-            }
-
-            // Call the `(defn main:update)` function
-            self.interpreter.call_update();
-
-            // Execute all deferred commands
-            let mut queue = api::CommandQueue::borrow_mut();
-            len = queue.0.len();
-            for command in queue.0.iter() {
-                match command {
-                    GlspCommand::Cls => {
-                        ctx.set_active_console(0);
-                        ctx.cls();
-                        ctx.set_active_console(1);
-                        ctx.cls();
-                    }
-                    GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
-                    GlspCommand::SetChar {
-                        x,
-                        y,
-                        glyph,
-                        fg,
-                        bg,
-                        console,
-                    } => {
-                        ctx.set_active_console(*console);
-                        ctx.set(*x, *y, *fg, *bg, *glyph);
-                    }
-                    GlspCommand::Exit => ctx.quit(),
-
-                    GlspCommand::SetScanlines(scanlines) => {
-                        ctx.post_scanlines = *scanlines;
-                    }
-                    GlspCommand::SetBurnColor(color) => {
-                        ctx.with_post_scanlines(true);
-                        ctx.screen_burn_color(*color);
-                    },
-                };
-            }
-            queue.0.clear();
-
-            glsp::gc();
-            Ok(())
-        });
+        self.interpreter.tick(ctx);
         ctx.set_active_console(1);
         ctx.print(0, 0, format!("{:} fps", ctx.fps));
     }

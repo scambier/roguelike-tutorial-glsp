@@ -47,9 +47,10 @@ pub fn bind_api() -> GResult<()> {
     glsp::bind_rfn("exit", &exit)?;
 
     // Context
-    glsp::bind_rfn("key?", &is_key_pressed)?;
+    // glsp::bind_rfn("ctx:key?", &is_key_pressed)?;
     glsp::bind_rfn("ctx:scanlines!", &set_scanlines)?;
     glsp::bind_rfn("ctx:burn!", &set_burn_color)?;
+    glsp::bind_rfn("ctx:console!", &set_console)?;
 
     // Rect
     glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
@@ -113,16 +114,16 @@ pub fn set_char(x: i32, y: i32, glyph: FontCharType, fg: &RGB, bg: &RGB, console
 }
 
 /// Returns if a specific key is pressed for the current frame
-pub fn is_key_pressed(k: String) -> bool {
-    let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
-    let rkey = KeyPressed::borrow().0;
-    match (key, rkey) {
-        (Ok(_), None) => false,
-        (Ok(key), Some(rkey)) => key as u32 == rkey as u32,
-        (Err(_), None) => false,
-        (Err(_), Some(_)) => false,
-    }
-}
+// pub fn is_key_pressed(k: String) -> bool {
+//     let key: Result<StrKeyCode, _> = StrKeyCode::from_str(&k);
+//     let rkey = KeyPressed::borrow().0;
+//     match (key, rkey) {
+//         (Ok(_), None) => false,
+//         (Ok(key), Some(rkey)) => key as u32 == rkey as u32,
+//         (Err(_), None) => false,
+//         (Err(_), Some(_)) => false,
+//     }
+// }
 
 /// Returns a color from 0-1 RBG values
 pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
