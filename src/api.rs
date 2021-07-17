@@ -17,6 +17,8 @@ pub enum GlspCommand {
     SetConsole {
         id: usize,
     },
+    SetScanlines(bool),
+    SetBurnColor(RGB),
     Exit,
 }
 
@@ -42,8 +44,12 @@ pub fn bind_api() -> GResult<()> {
     glsp::bind_rfn("console:log", &console::log::<String>)?;
     glsp::bind_rfn("cls", &cls)?;
     glsp::bind_rfn("set", &set_char_glsp)?;
-    glsp::bind_rfn("key?", &is_key_pressed)?;
     glsp::bind_rfn("exit", &exit)?;
+
+    // Context
+    glsp::bind_rfn("key?", &is_key_pressed)?;
+    glsp::bind_rfn("ctx:scanlines!", &set_scanlines)?;
+    glsp::bind_rfn("ctx:burn!", &set_burn_color)?;
 
     // Rect
     glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
@@ -81,9 +87,9 @@ pub fn set_console(id: usize) {
 
 /// Draws a char on screen (glsp fn)
 pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
-    let (console, glyph) = match glyph {
-        Val::Int(g) => (0, g as u16),
-        Val::Char(c) => (1, to_cp437(c)),
+    let (glyph, console) = match glyph {
+        Val::Int(g) => (g as u16, 0),
+        Val::Char(c) => (to_cp437(c), 1),
         _ => {
             panic!("invalid glyph")
         }
@@ -125,6 +131,18 @@ pub fn rgb_color(r: Num, g: Num, b: Num) -> RGB {
         g: g.into_f32(),
         b: b.into_f32(),
     }
+}
+
+fn set_scanlines(set: bool) {
+    CommandQueue::borrow_mut()
+        .0
+        .push(GlspCommand::SetScanlines(set));
+}
+
+fn set_burn_color(color: &RGB) {
+    CommandQueue::borrow_mut()
+        .0
+        .push(GlspCommand::SetBurnColor(*color));
 }
 
 /// Exits the game

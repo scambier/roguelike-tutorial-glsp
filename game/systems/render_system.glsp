@@ -1,6 +1,18 @@
 (defn sys:render (world)
-  (let map (.fetch world 'map))
-  (for (entity (pos render)) in (query world  Position Renderable)
+  (let map (.fetch world 'map)
+    player (.fetch world 'player)
+    player-pos (get-cmp world player Position)
+    player-idx (.xy-idx map [player-pos 'x] [player-pos 'y]))
+
+  (for (entity (pos render)) in (query world Position Renderable)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
     (when (.visible-tile? map idx)
       (set [pos 'x] [pos 'y] [render 'glyph] [render 'fg] [render 'bg]))))
+
+      ; draw path
+      ;(let monster (get-cmp world entity Monster)))))
+      ;(when monster
+      ;  (let path (.a* map idx player-idx))
+      ;  (for p in [path 'steps]
+      ;    (let pos (.idx-xy map p))
+      ;    (set [pos 0] [pos 1] \. (Color 0 1 1) (Color 0 0 0))))))

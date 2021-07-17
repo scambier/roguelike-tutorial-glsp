@@ -71,6 +71,14 @@ impl GameState for State {
                         ctx.set(*x, *y, *fg, *bg, *glyph);
                     }
                     GlspCommand::Exit => ctx.quit(),
+
+                    GlspCommand::SetScanlines(scanlines) => {
+                        ctx.post_scanlines = *scanlines;
+                    }
+                    GlspCommand::SetBurnColor(color) => {
+                        ctx.with_post_scanlines(true);
+                        ctx.screen_burn_color(*color);
+                    },
                 };
             }
             queue.0.clear();
@@ -111,44 +119,8 @@ fn main() -> BError {
         .build()?;
 
     let interpreter = GlspInterpreter::new();
-    interpreter.runtime.run(|| {
-        // Release: bundle the glsp code
-        #[cfg(feature = "compiler")]
-        let res = glsp::load_compiled(compile!["./game/main.glsp"])?;
-        // Dev: dynamically load the code
-        #[cfg(not(feature = "compiler"))]
-        let res = glsp::load("./game/main.glsp")?;
+    interpreter.setup();
 
-        // internals
-        glsp::add_rglobal(api::CommandQueue::new());
-        glsp::add_rglobal(KeyPressed::new());
-
-        // constants & globals
-        glsp::bind_global("ctx:key", "")?;
-        glsp::bind_global(":width", WIDTH)?;
-        glsp::bind_global(":height", HEIGHT)?;
-
-        // api
-        api::bind_api()?;
-        Map::bind_map()?;
-        World::bind_world()?;
-
-        // colors
-        glsp::bind_rfn("Color", &api::rgb_color)?;
-
-        // rng
-        glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
-        glsp::RClassBuilder::<RandomNumberGenerator>::new()
-            .met("roll-dice", &RandomNumberGenerator::roll_dice)
-            .met("range", &RandomNumberGenerator::range::<i32>)
-            .build();
-
-        // Call the `(defn main:init)` function
-        interpreter.call_init();
-
-        glsp::eval(&res, None)?;
-        Ok(())
-    });
     let gs = State { interpreter };
     main_loop(context, gs)
 }

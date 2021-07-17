@@ -25,6 +25,8 @@
 ;; entry point
 ;;
 (defn main:init ()
+  (ctx:scanlines! #t)
+  ;(ctx:burn! (Color 1 1 1))
   ; init the global world
   ; (def :world (World))
   (def :world (World2))
@@ -69,7 +71,7 @@
 ;; update called every tick
 ;;
 (defn main:update ()
-  (.on-step :state :world)
   (cls)
+  (.on-step :state :world)
   (draw-map (.fetch :world 'map))
   (sys:render :world))

@@ -37,13 +37,13 @@ impl Tile {
         let dot = ss_idx(0, 256);
         let choices = [
             // small items
-            (ss_idx(40, 72), 1),
-            (ss_idx(56, 112), 1),
-            (ss_idx(64, 112), 1),
-            (ss_idx(112, 224), 1),
-            (ss_idx(120, 224), 1),
-            (ss_idx(112, 232), 1),
-            (ss_idx(120, 232), 1),
+            (ss_idx(40, 72), 10),
+            (ss_idx(56, 112), 1), // double
+            (ss_idx(64, 112), 1), // double
+            (ss_idx(112, 224), 10),
+            (ss_idx(120, 224), 10),
+            (ss_idx(112, 232), 10),
+            (ss_idx(120, 232), 10),
             // empty
             // (32, 200),
             // (ss_idx(0, 256), 200),
@@ -98,9 +98,9 @@ impl Tile {
             tile_type: TileType::Floor,
             glyph,
             bg: RGB::named(BLACK),
-            fg: RGB::named(GREY5),
-            bg_lit: RGB::named(GREY3),
-            fg_lit: RGB::named(GREY15),
+            fg: RGB::named(GREY50),
+            bg_lit: RGB::named(GREY30),
+            fg_lit: RGB::named(GREY80),
             console: 0,
         }
     }

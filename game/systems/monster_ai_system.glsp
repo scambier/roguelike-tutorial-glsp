@@ -15,8 +15,9 @@
       (console:log "{[name 'name]} growls at you")
       ; get path from mob to player
       (let path (.a* gamemap pos-idx player-idx))
+
       ; if a path exists, move mob towards player
-      (when (and [path 'success] (> (len [path 'steps]) 1))
+      (when (and [path 'success] (> (len [path 'steps]) 2))
         (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
         (= [pos 'x] [new-pos 0])
         (= [pos 'y] [new-pos 1])

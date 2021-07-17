@@ -59,16 +59,14 @@ impl World {
             .collect::<Vec<_>>()
     }
 
-    pub fn get_component(&self, entity: i32, class: Root<Class>) -> Root<Obj> {
-        self.entities
-            .get(&entity)
-            .unwrap()
-            .get(&class.to_string())
-            .unwrap()
-            .to_owned()
+    pub fn get_component(&self, entity: i32, class: Root<Class>) -> Option<Root<Obj>> {
+        match self.entities.get(&entity).unwrap().get(&class.to_string()) {
+            Some(cmp) => Some(cmp.to_owned()),
+            None => None,
+        }
     }
 
-    pub fn get_components(&self, entity: i32, types: Vec<Root<Class>>) -> Vec<Root<Obj>> {
+    pub fn get_components(&self, entity: i32, types: Vec<Root<Class>>) -> Vec<Option<Root<Obj>>> {
         types
             .iter()
             .map(|t| self.get_component(entity, t.to_owned()))
@@ -79,7 +77,13 @@ impl World {
         let entities = self.get_entities(types.clone());
         let mut data = vec![];
         for e in entities {
-            data.push((e, self.get_components(e, types.clone())))
+            data.push((
+                e,
+                self.get_components(e, types.clone())
+                    .iter()
+                    .map(|c| c.to_owned().unwrap())
+                    .collect(),
+            ))
         }
         data
     }
