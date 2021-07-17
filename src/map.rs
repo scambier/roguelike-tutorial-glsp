@@ -22,6 +22,7 @@ impl Map {
             .prop_get("height", &Map::get_height)
             .met("init", &Map::new)
             .met("xy-idx", &Map::xy_idx)
+            .met("idx-xy", &Map::idx_xy)
             .met("get-room", &Map::get_room)
             .met("apply-room", &Map::apply_room)
             .met("get-rooms", &Map::get_rooms)
@@ -30,7 +31,6 @@ impl Map {
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
             .met("is-walkable", &Map::is_walkable)
             .met("fov", &Map::field_of_view_glsp)
-
             // Visible tiles
             .met("reveal-tile!", &Map::add_tile_to_revealed)
             .met("show-tile!", &Map::add_tile_to_visible)
@@ -40,6 +40,14 @@ impl Map {
             .met("clear-visible-tiles!", &|map: &mut Map| {
                 map.visible_tiles.iter_mut().for_each(|t| *t = false)
             })
+            .met("a*", &|map: &mut Map, start: usize, end: usize| {
+                a_star_search(start, end, map)
+            })
+            .build();
+
+        glsp::RClassBuilder::<NavigationPath>::new()
+            .prop_get("success", &|path: &NavigationPath| path.success)
+            .prop_get("steps", &|path: &NavigationPath| path.steps.to_vec())
             .build();
 
         glsp::bind_rfn("draw-map", &draw_map)?;
@@ -83,6 +91,10 @@ impl Map {
         (y * self.width + x) as usize
     }
 
+    fn idx_xy(&self, idx: usize) -> (usize, usize) {
+        (idx % self.width as usize, idx / self.width as usize)
+    }
+
     fn apply_room(&mut self, room: &Rect) {
         for y in room.y1..room.y2 {
             for x in room.x1..room.x2 {
@@ -110,6 +122,16 @@ impl Map {
         }
     }
 
+    // FIXME: merge with is_walkable
+    fn is_exit_valid(&self, x: i32, y: i32) -> bool {
+        if x < 1 || x > self.width || y < 1 || y > self.height {
+            return false;
+        }
+        let idx = self.xy_idx(x, y);
+        return self.is_walkable(idx);
+    }
+
+    // FIXME: merge with is_exit_valid
     fn is_walkable(&self, idx: usize) -> bool {
         self.tiles[idx].tile_type == TileType::Floor
     }
@@ -139,6 +161,36 @@ impl Algorithm2D for Map {
 impl BaseMap for Map {
     fn is_opaque(&self, idx: usize) -> bool {
         self.tiles[idx].tile_type == TileType::Wall
+    }
+
+    fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
+        let mut exits = SmallVec::new();
+        let x = idx as i32 % self.width;
+        let y = idx as i32 / self.width;
+        let w = self.width as usize;
+
+        // Cardinal directions
+        if self.is_exit_valid(x - 1, y) {
+            exits.push((idx - 1, 1.0))
+        };
+        if self.is_exit_valid(x + 1, y) {
+            exits.push((idx + 1, 1.0))
+        };
+        if self.is_exit_valid(x, y - 1) {
+            exits.push((idx - w, 1.0))
+        };
+        if self.is_exit_valid(x, y + 1) {
+            exits.push((idx + w, 1.0))
+        };
+
+        exits
+    }
+
+    fn get_pathing_distance(&self, idx1: usize, idx2: usize) -> f32 {
+        let w = self.width as usize;
+        let p1 = Point::new(idx1 % w, idx1 / w);
+        let p2 = Point::new(idx2 % w, idx2 / w);
+        DistanceAlg::Pythagoras.distance2d(p1, p2)
     }
 }
 
