@@ -201,16 +201,15 @@ pub fn draw_map(map: &Map) {
     // let floor = sym("floor").unwrap();
     for (idx, tile) in map.tiles.iter().enumerate() {
         if map.revealed_tiles[idx] {
-            // println!("{:?}", tile == wall);
             let fg = if map.visible_tiles[idx] {
-                tile.fg_lit
-            } else {
                 tile.fg
+            } else {
+                tile.fg_fog
             };
             let bg = if map.visible_tiles[idx] {
-                tile.bg_lit
-            } else {
                 tile.bg
+            } else {
+                tile.bg_fog
             };
             set_char(x, y, tile.glyph, &fg, &bg, tile.console);
         }

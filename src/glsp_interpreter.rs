@@ -100,8 +100,6 @@ impl GlspInterpreter {
     }
 
     pub fn tick(&self, ctx: &mut BTerm) {
-        let mut len: usize = 0;
-
         self.runtime.run(|| {
             // Update the ctx:key global
             if let Some(key) = ctx.key {
@@ -119,14 +117,13 @@ impl GlspInterpreter {
 
             // Execute all deferred commands
             let mut queue = api::CommandQueue::borrow_mut();
-            len = queue.0.len();
             for command in queue.0.iter() {
                 match command {
                     GlspCommand::Cls => {
                         ctx.set_active_console(0);
-                        ctx.cls();
+                        ctx.cls_bg(RGB::named(GREY15));
                         ctx.set_active_console(1);
-                        ctx.cls();
+                        ctx.cls_bg(RGB::named(GREY15));
                     }
                     GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
                     GlspCommand::SetChar {

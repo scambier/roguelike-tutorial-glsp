@@ -46,7 +46,7 @@
       (Name (name "player"))
       (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
       (Position (x px) (y py))
-      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))))
+      (Viewshed (visible-tiles (arr)) (range 9) (dirty #t))))
   (.save :world 'player player) ; save a global ref
 
   ; init the monsters
