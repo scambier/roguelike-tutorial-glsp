@@ -11,12 +11,12 @@ pub struct Map {
     pub tiles: Vec<Tile>,
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
+    pub blocked_tiles: Vec<bool>,
     pub rooms: Vec<Rect>,
 }
 
 impl Map {
     pub fn bind_map() -> GResult<()> {
-        glsp::bind_rfn("Map", &Map::new)?;
         glsp::RClassBuilder::<Map>::new()
             .prop_get("width", &Map::get_width)
             .prop_get("height", &Map::get_height)
@@ -31,19 +31,25 @@ impl Map {
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
             .met("is-walkable", &Map::is_walkable)
             .met("fov", &Map::field_of_view_glsp)
-            // Visible tiles
+            .met("a*", &|map: &mut Map, start: usize, end: usize| {
+                a_star_search(start, end, map)
+            })
+            // Tiles manipulation
             .met("reveal-tile!", &Map::add_tile_to_revealed)
             .met("show-tile!", &Map::add_tile_to_visible)
+            .met("update-blocked!", &Map::update_blocked_tiles)
+            .met("block-tile!", &|map: &mut Map, idx:usize| {
+                map.blocked_tiles[idx] = true
+            })
             .met("visible-tile?", &|map: &Map, idx: usize| -> bool {
                 map.visible_tiles[idx]
             })
             .met("clear-visible-tiles!", &|map: &mut Map| {
                 map.visible_tiles.iter_mut().for_each(|t| *t = false)
             })
-            .met("a*", &|map: &mut Map, start: usize, end: usize| {
-                a_star_search(start, end, map)
-            })
+
             .build();
+        glsp::bind_rfn("Map", &Map::new)?;
 
         glsp::RClassBuilder::<NavigationPath>::new()
             .prop_get("success", &|path: &NavigationPath| path.success)
@@ -67,6 +73,7 @@ impl Map {
             tiles,
             revealed_tiles: vec![false; size],
             visible_tiles: vec![false; size],
+            blocked_tiles: vec![false; size],
             rooms: vec![],
         }
     }
@@ -133,7 +140,7 @@ impl Map {
 
     // FIXME: merge with is_exit_valid
     fn is_walkable(&self, idx: usize) -> bool {
-        self.tiles[idx].tile_type == TileType::Floor
+        !self.blocked_tiles[idx]
     }
 
     fn field_of_view_glsp(&self, x: i32, y: i32, range: i32) -> Vec<Point> {
@@ -146,6 +153,12 @@ impl Map {
 
     fn add_tile_to_visible(&mut self, idx: usize) {
         self.visible_tiles[idx] = true;
+    }
+
+    fn update_blocked_tiles(&mut self) {
+        for (i, tile) in self.tiles.iter().enumerate() {
+            self.blocked_tiles[i] = tile.tile_type == TileType::Wall;
+        }
     }
 }
 

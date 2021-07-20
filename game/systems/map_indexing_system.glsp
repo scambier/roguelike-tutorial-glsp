@@ -1,0 +1,6 @@
+(defn sys:map-indexing (world)
+  (let map (.fetch world 'map))
+  (.update-blocked! map)
+  (for (entity, (_, pos)) in (query world BlocksTile, Position)
+    (let idx (.xy-idx map [pos 'x] [pos 'y]))
+    (.block-tile! map idx)))

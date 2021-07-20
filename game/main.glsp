@@ -10,8 +10,9 @@
     ; all the work that needs to be done once per turn
     (state* Running
       (met on-step (world)
-        (sys:visibility world)
-        (sys:monster-ai world)
+        (sys:visibility world)    ; compute who's seeing what
+        (sys:monster-ai world)    ; act
+        (sys:map-indexing world)  ; update the map's state
         (@enab! 'Paused)))
 
     ; what's happening when we wait for an input
@@ -64,7 +65,8 @@
       (Renderable (glyph glyph) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
       (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))
       (Name (name "{name} {i}"))
-      (Monster))))
+      (Monster)
+      (BlocksTile))))
 
 
 ;;

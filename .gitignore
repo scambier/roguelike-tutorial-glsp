@@ -1,5 +1,6 @@
 /target
 /.history
+/.idea
 /wasm/*.js
 /wasm/*.wasm
 resources/MRMOTEXT_rexpaint.png

@@ -18,3 +18,5 @@
 
 (defstruct Name
   name)
+
+(defstruct BlocksTile)

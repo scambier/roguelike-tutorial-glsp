@@ -1,7 +1,6 @@
 use crate::keycodes::StrKeyCode;
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
-use std::str::FromStr;
 
 #[derive(Debug)]
 pub enum GlspCommand {
@@ -23,6 +22,7 @@ pub enum GlspCommand {
 }
 
 pub struct CommandQueue(pub Vec<GlspCommand>);
+
 impl CommandQueue {
     pub fn new() -> Self {
         CommandQueue {
@@ -30,14 +30,17 @@ impl CommandQueue {
         }
     }
 }
+
 impl RGlobal for CommandQueue {}
 
 pub struct KeyPressed(pub Option<StrKeyCode>);
+
 impl KeyPressed {
     pub fn new() -> Self {
         KeyPressed { 0: None }
     }
 }
+
 impl RGlobal for KeyPressed {}
 
 pub fn bind_api() -> GResult<()> {

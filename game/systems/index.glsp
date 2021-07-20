@@ -1,3 +1,4 @@
 (load "game/systems/render_system.glsp")
 (load "game/systems/visibility_system.glsp")
 (load "game/systems/monster_ai_system.glsp")
+(load "game/systems/map_indexing_system.glsp")
