@@ -1,30 +1,33 @@
-use std::collections::HashMap;
-
 use glsp::prelude::*;
+use std::{collections::HashMap, hash::Hash};
+
+pub type Entity = i32;
 
 /// A simple, naïve (and absolutely unoptimized) ECS world
 pub struct World {
-    entity_counter: i32,
-    entities: HashMap<i32, HashMap<String, Root<Obj>>>,
+    entity_counter: Entity,
+    entities: HashMap<Entity, HashMap<String, Root<Obj>>>,
     resources: HashMap<Sym, Val>,
 }
 
 impl World {
     pub fn bind_world() -> GResult<()> {
-        glsp::bind_rfn("World2", &World::new)?;
+        glsp::bind_rfn("World", &World::new)?;
         glsp::RClassBuilder::<World>::new()
             .met("add-entity", &World::add_entity)
             .met("get-entities", &World::get_entities)
             .met("get-cmp", &World::get_components)
+            .met("add-cmp", &World::add_components)
+            .met("clear-cmp", &World::clear_component)
             .met("query", &World::query)
             .met("save", &World::save)
             .met("fetch", &World::fetch)
+            .met("delete", &World::delete_entity)
             .build();
-
         Ok(())
     }
 
-    pub fn new() -> Self {
+    fn new() -> Self {
         World {
             entity_counter: 0,
             entities: HashMap::new(),
@@ -32,21 +35,21 @@ impl World {
         }
     }
 
-    pub fn add_entity(&mut self, components: Vec<Root<Obj>>) -> i32 {
+    fn add_entity(&mut self, components: Vec<Root<Obj>>) -> Entity {
         self.entity_counter += 1;
         self.entities.insert(self.entity_counter, HashMap::new());
         self.add_components(self.entity_counter, components);
         self.entity_counter
     }
 
-    pub fn add_components(&mut self, entity: i32, components: Vec<Root<Obj>>) {
+    fn add_components(&mut self, entity: Entity, components: Vec<Root<Obj>>) {
         let registered = self.entities.get_mut(&entity).unwrap();
         for c in components {
             registered.insert(c.class().to_string(), c);
         }
     }
 
-    pub fn get_entities(&self, types: Vec<Root<Class>>) -> Vec<i32> {
+    fn get_entities(&self, types: Vec<Root<Class>>) -> Vec<Entity> {
         // let copy = types.to_vec();
         self.entities
             .keys()
@@ -59,21 +62,27 @@ impl World {
             .collect::<Vec<_>>()
     }
 
-    pub fn get_component(&self, entity: i32, class: Root<Class>) -> Option<Root<Obj>> {
-        match self.entities.get(&entity).unwrap().get(&class.to_string()) {
-            Some(cmp) => Some(cmp.to_owned()),
-            None => None,
+    fn get_component(&self, entity: Entity, class: Root<Class>) -> Option<Root<Obj>> {
+        match self.entities.get(&entity) {
+            Some(entity) => match entity.get(&class.to_string()) {
+                Some(cmp) => Some(cmp.to_owned()),
+                None => None,
+            },
+            None => {
+                println!("Entity {} does not exist anymore", entity);
+                None
+            },
         }
     }
 
-    pub fn get_components(&self, entity: i32, types: Vec<Root<Class>>) -> Vec<Option<Root<Obj>>> {
+    fn get_components(&self, entity: Entity, types: Vec<Root<Class>>) -> Vec<Option<Root<Obj>>> {
         types
             .iter()
             .map(|t| self.get_component(entity, t.to_owned()))
             .collect()
     }
 
-    pub fn query(&self, types: Vec<Root<Class>>) -> Vec<(i32, Vec<Root<Obj>>)> {
+    fn query(&self, types: Vec<Root<Class>>) -> Vec<(Entity, Vec<Root<Obj>>)> {
         let entities = self.get_entities(types.clone());
         let mut data = vec![];
         for e in entities {
@@ -88,11 +97,39 @@ impl World {
         data
     }
 
-    pub fn save(&mut self, key: Sym, val: Val) {
+    fn save(&mut self, key: Sym, val: Val) {
         self.resources.insert(key, val);
     }
 
-    pub fn fetch(&self, key: Sym) -> Val {
+    fn fetch(&self, key: Sym) -> Val {
         self.resources.get(&key).unwrap().to_owned()
+    }
+
+    fn remove_component(&mut self, entity: Entity, cmp_type: &Root<Class>) {
+        let k = cmp_type.to_string();
+        match self.entities.get_mut(&entity) {
+            Some(components) => {
+                components.remove(&k);
+            }
+            None => todo!(),
+        }
+    }
+
+    /// Removes all components
+    fn clear_component(&mut self, cmp_type: Root<Class>) {
+        let k = &cmp_type.to_string();
+        let to_clean = self
+            .entities
+            .iter()
+            .filter(|(_, cmps)| cmps.contains_key(k))
+            .map(|(e, _)| *e)
+            .collect::<Vec<Entity>>();
+        for e in to_clean {
+            self.remove_component(e, &cmp_type);
+        }
+    }
+
+    fn delete_entity(&mut self, entity: Entity) {
+        self.entities.remove(&entity);
     }
 }

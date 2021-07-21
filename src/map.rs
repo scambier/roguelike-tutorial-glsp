@@ -1,18 +1,21 @@
-use bracket_lib::prelude::*;
-use glsp::prelude::*;
 use std::cmp::{max, min};
 
+use bracket_lib::prelude::*;
+use glsp::prelude::*;
+
 use crate::api::*;
+use crate::ecs::Entity;
 use crate::tile::{Tile, *};
 
 pub struct Map {
+    pub tiles: Vec<Tile>,
+    pub rooms: Vec<Rect>,
     pub width: i32,
     pub height: i32,
-    pub tiles: Vec<Tile>,
     pub revealed_tiles: Vec<bool>,
     pub visible_tiles: Vec<bool>,
     pub blocked_tiles: Vec<bool>,
-    pub rooms: Vec<Rect>,
+    pub tile_content: Vec<Vec<Entity>>,
 }
 
 impl Map {
@@ -21,33 +24,44 @@ impl Map {
             .prop_get("width", &Map::get_width)
             .prop_get("height", &Map::get_height)
             .met("init", &Map::new)
+            // Coords / index
             .met("xy-idx", &Map::xy_idx)
             .met("idx-xy", &Map::idx_xy)
+            // Rooms / corridors
             .met("get-room", &Map::get_room)
-            .met("apply-room", &Map::apply_room)
             .met("get-rooms", &Map::get_rooms)
+            .met("apply-room", &Map::apply_room)
             .met("add-room", &Map::add_room)
             .met("apply-horizontal-tunnel", &Map::apply_horizontal_tunnel)
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
-            .met("is-walkable", &Map::is_walkable)
+            .met("is-walkable", &|map: &Map, idx: usize| {
+                !map.blocked_tiles[idx]
+            })
+            // Fov / Pathing
             .met("fov", &Map::field_of_view_glsp)
             .met("a*", &|map: &mut Map, start: usize, end: usize| {
                 a_star_search(start, end, map)
             })
-            // Tiles manipulation
-            .met("reveal-tile!", &Map::add_tile_to_revealed)
-            .met("show-tile!", &Map::add_tile_to_visible)
-            .met("update-blocked!", &Map::update_blocked_tiles)
-            .met("block-tile!", &|map: &mut Map, idx:usize| {
+            // Population
+            .met("clear-indexed-entities!", &Map::clear_content_index)
+            .met("index-entity!", &Map::index_entity)
+            .met("entities-at", &|map: &Map, idx: usize| {
+                map.tile_content[idx].to_vec()
+            })
+            // Blocked tiles
+            .met("populate-blocked!", &Map::populate_blocked_tiles)
+            .met("block-tile!", &|map: &mut Map, idx: usize| {
                 map.blocked_tiles[idx] = true
             })
+            // Visibility
+            .met("reveal-tile!", &Map::add_tile_to_revealed)
+            .met("show-tile!", &Map::add_tile_to_visible)
             .met("visible-tile?", &|map: &Map, idx: usize| -> bool {
                 map.visible_tiles[idx]
             })
             .met("clear-visible-tiles!", &|map: &mut Map| {
                 map.visible_tiles.iter_mut().for_each(|t| *t = false)
             })
-
             .build();
         glsp::bind_rfn("Map", &Map::new)?;
 
@@ -68,13 +82,14 @@ impl Map {
             tiles.push(Tile::wall());
         }
         Map {
+            tiles,
+            rooms: vec![],
             width,
             height,
-            tiles,
             revealed_tiles: vec![false; size],
             visible_tiles: vec![false; size],
             blocked_tiles: vec![false; size],
-            rooms: vec![],
+            tile_content: vec![Vec::new(); size],
         }
     }
 
@@ -98,8 +113,11 @@ impl Map {
         (y * self.width + x) as usize
     }
 
-    fn idx_xy(&self, idx: usize) -> (usize, usize) {
-        (idx % self.width as usize, idx / self.width as usize)
+    fn idx_xy(&self, idx: i32) -> Point {
+        Point {
+            x: idx % self.width,
+            y: idx / self.width,
+        }
     }
 
     fn apply_room(&mut self, room: &Rect) {
@@ -135,11 +153,6 @@ impl Map {
             return false;
         }
         let idx = self.xy_idx(x, y);
-        return self.is_walkable(idx);
-    }
-
-    // FIXME: merge with is_exit_valid
-    fn is_walkable(&self, idx: usize) -> bool {
         !self.blocked_tiles[idx]
     }
 
@@ -155,10 +168,20 @@ impl Map {
         self.visible_tiles[idx] = true;
     }
 
-    fn update_blocked_tiles(&mut self) {
+    fn populate_blocked_tiles(&mut self) {
         for (i, tile) in self.tiles.iter().enumerate() {
             self.blocked_tiles[i] = tile.tile_type == TileType::Wall;
         }
+    }
+
+    fn clear_content_index(&mut self) {
+        for content in self.tile_content.iter_mut() {
+            content.clear();
+        }
+    }
+
+    fn index_entity(&mut self, idx: usize, entity: Entity) {
+        self.tile_content[idx].push(entity);
     }
 }
 
@@ -195,6 +218,20 @@ impl BaseMap for Map {
         if self.is_exit_valid(x, y + 1) {
             exits.push((idx + w, 1.0))
         };
+
+        // Diagonals
+        if self.is_exit_valid(x - 1, y - 1) {
+            exits.push(((idx - w) - 1, 1.45));
+        }
+        if self.is_exit_valid(x + 1, y - 1) {
+            exits.push(((idx - w) + 1, 1.45));
+        }
+        if self.is_exit_valid(x - 1, y + 1) {
+            exits.push(((idx + w) - 1, 1.45));
+        }
+        if self.is_exit_valid(x + 1, y + 1) {
+            exits.push(((idx + w) + 1, 1.45));
+        }
 
         exits
     }

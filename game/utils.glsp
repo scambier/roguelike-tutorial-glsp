@@ -45,3 +45,6 @@
   (if (eq? (len res) 1)
     [res 0]
     res))
+
+(defn add-cmp (world entity ..components)
+  (.add-cmp world entity (arr ..components)))

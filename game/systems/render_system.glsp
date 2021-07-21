@@ -15,4 +15,4 @@
       ;  (let path (.a* map idx player-idx))
       ;  (for p in [path 'steps]
       ;    (let pos (.idx-xy map p))
-      ;    (set [pos 0] [pos 1] \. (Color 0 1 1) (Color 0 0 0))))))
+      ;    (set [pos 'x] [pos 'y] \. (Color 0 1 1) (Color 0 0 0))))))

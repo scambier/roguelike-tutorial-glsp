@@ -20,3 +20,25 @@
   name)
 
 (defstruct BlocksTile)
+
+; Combat
+
+(defstruct CombatStats
+  max-hp hp
+  defense power)
+
+(defstruct WantsToMelee
+  target)
+
+(defstruct SufferDamage
+  amount
+
+  (const new-damage
+    (fn (target val)
+      ; get or set the SufferDamage cmp
+      (let suffer (or
+                    (get-cmp :world target SufferDamage)
+                    (SufferDamage:new (arr))))
+      ; add the new amount
+      (push! [suffer 'amount] val)
+      (add-cmp :world target suffer))))

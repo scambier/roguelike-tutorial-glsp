@@ -101,6 +101,16 @@ impl GlspInterpreter {
 
     pub fn tick(&self, ctx: &mut BTerm) {
         self.runtime.run(|| {
+            // Quick check:
+            // If we fail to retrieve the ctx:key global, it most likely means
+            // that there a GLSP syntax error in our code
+            match glsp::global::<_, String>("ctx:key") {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("{:?}", e);
+                    panic!();
+                }
+            }
             // Update the ctx:key global
             if let Some(key) = ctx.key {
                 // convert VirtualKeyCode to StrKeyCode

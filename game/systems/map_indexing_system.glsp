@@ -1,6 +1,18 @@
 (defn sys:map-indexing (world)
   (let map (.fetch world 'map))
-  (.update-blocked! map)
-  (for (entity, (_, pos)) in (query world BlocksTile, Position)
+
+  ; reset map data
+  (.populate-blocked! map)
+  (.clear-indexed-entities! map)
+
+  ; iterate all positioned entities
+  (for (entity, (pos)) in (query world, Position)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
-    (.block-tile! map idx)))
+
+    ; update blocking index, if the entity is blocking
+    (let blocking (get-cmp world entity BlocksTile))
+    (when blocking
+      (.block-tile! map idx))
+
+    ; index entities
+    (.index-entity! map idx entity)))

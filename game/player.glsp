@@ -7,21 +7,35 @@
     map (.fetch world 'map))
 
   (match ctx:key
+    ; cardinals
     ((or "up" "numpad8" "k") (try-move-player map 0 -1))
     ((or "down" "numpad2" "j") (try-move-player map 0 1))
-    ((or "left" "numpad4" "4") (try-move-player map -1 0))
+    ((or "left" "numpad4" "h") (try-move-player map -1 0))
     ((or "right" "numpad6" "l") (try-move-player map 1 0))
+    ; diagonals
+    ((or "numpad7" "u") (try-move-player map -1 -1))
+    ((or "numpad9" "y") (try-move-player map 1 -1))
+    ((or "numpad1" "b") (try-move-player map -1 1))
+    ((or "numpad3" "n") (try-move-player map 1 1))
+
     ("escape" (exit))
     (_ (return #f)))
-
   #t)
 
 
 (defn try-move-player (map dx dy)
   (let
     player (.fetch :world 'player)
+    map (.fetch :world 'map)
     (pos, viewshed) (get-cmp :world player Position Viewshed)
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
+
+  ; if an enemy is on the destination tile, attack it
+  (for e in (.entities-at map destination)
+    (let combat (get-cmp :world e CombatStats))
+    (when combat
+      (add-cmp :world player (WantsToMelee (target e)))
+      (return)))
 
   ; block movement on walls
   (when (.is-walkable map destination)

@@ -74,6 +74,7 @@ pub fn bind_api() -> GResult<()> {
         .prop_get("y", &|p: &Point| p.y)
         .prop_set("y", &|p: &mut Point, y: i32| p.y = y)
         .build();
+    glsp::bind_rfn("dist2d", &dist2d)?;
     Ok(())
 }
 
@@ -152,4 +153,25 @@ fn set_burn_color(color: &RGB) {
 /// Exits the game
 pub fn exit() {
     CommandQueue::borrow_mut().0.push(GlspCommand::Exit);
+}
+
+/// Converts a GLSP "Pos" component to a Rust <Point>
+fn pos_to_point(pos: Val) -> GResult<Point> {
+    match pos {
+        Val::Obj(pos) => match (pos.get("x"), pos.get("y")) {
+            (Ok(x), Ok(y)) => Ok(Point { x, y }),
+            _ => bail!("This object does not have x and y fields"),
+        },
+        val => bail!("Expected an Obj, received a {}", val),
+    }
+}
+
+/// Gets the distance between 2 "Pos" components
+fn dist2d(start: Val, end: Val) -> GResult<f32> {
+    match (pos_to_point(start), pos_to_point(end)) {
+        (Ok(start), Ok(end)) => Ok(DistanceAlg::Pythagoras.distance2d(start, end)),
+        (Ok(_), Err(e)) => bail!(e),
+        (Err(e), Ok(_)) => bail!(e),
+        (Err(e), Err(_)) => bail!(e),
+    }
 }

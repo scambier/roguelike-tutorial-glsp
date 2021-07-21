@@ -9,17 +9,21 @@
     (let pos-idx (.xy-idx gamemap [pos 'x] [pos 'y]))
     ; convert the viewsheld visible-tiles into an array of ids
     ; and check if the player is within range
-    (let mapped (arr ..(map (fn1 (.xy-idx gamemap [_ 'x] [_ 'y])) [viewshed 'visible-tiles])))
+    (let visible-tiles (arr ..(map (fn1 (.xy-idx gamemap [_ 'x] [_ 'y])) [viewshed 'visible-tiles])))
 
-    (when (arr-contains? mapped player-idx)
-      (console:log "{[name 'name]} growls at you")
-      ; get path from mob to player
-      (let path (.a* gamemap pos-idx player-idx))
+    (let distance (dist2d pos player-pos))
+    (if (< distance 1.5)
+      (add-cmp world e (WantsToMelee (target player)))
+      (do
+        (when (arr-contains? visible-tiles player-idx)
+          ; get path from mob to player
+          (let path (.a* gamemap pos-idx player-idx))
 
-      ; if a path exists, move mob towards player
-      (when (and [path 'success] (> (len [path 'steps]) 2))
-        (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
-        (= [pos 'x] [new-pos 0])
-        (= [pos 'y] [new-pos 1])
-        (= [viewshed 'dirty] #t)))))
+          ; if a path exists, move mob towards player
+          ; FIXME: 2 monsters can end on the same tile at the same time
+          (when (and [path 'success] (> (len [path 'steps]) 2))
+            (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
+            (= [pos 'x] [new-pos 'x])
+            (= [pos 'y] [new-pos 'y])
+            (= [viewshed 'dirty] #t)))))))
 

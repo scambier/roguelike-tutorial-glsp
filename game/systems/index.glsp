@@ -2,3 +2,5 @@
 (load "game/systems/visibility_system.glsp")
 (load "game/systems/monster_ai_system.glsp")
 (load "game/systems/map_indexing_system.glsp")
+(load "game/systems/melee_combat_system.glsp")
+(load "game/systems/damage_system.glsp")

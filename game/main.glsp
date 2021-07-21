@@ -12,6 +12,9 @@
       (met on-step (world)
         (sys:visibility world)    ; compute who's seeing what
         (sys:monster-ai world)    ; act
+        (sys:melee-combat world)  ; initiate melee combat
+        (sys:damage world)        ; apply damages
+        (sys:damage:clean-dead world) ; dipose of bodies
         (sys:map-indexing world)  ; update the map's state
         (@enab! 'Paused)))
 
@@ -29,8 +32,7 @@
   (ctx:scanlines! #t)
   ;(ctx:burn! (Color 1 1 1))
   ; init the global world
-  ; (def :world (World))
-  (def :world (World2))
+  (def :world (World))
   (def :state (GameState))
 
   ; init the map
@@ -47,8 +49,10 @@
       (Name (name "player"))
       (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
       (Position (x px) (y py))
-      (Viewshed (visible-tiles (arr)) (range 9) (dirty #t))))
+      (Viewshed (visible-tiles (arr)) (range 9) (dirty #t))
+      (CombatStats (max-hp 30) (hp 30) (defense 2) (power 5))))
   (.save :world 'player player) ; save a global ref
+
 
   ; init the monsters
   (let rng (RNG))
@@ -66,7 +70,8 @@
       (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))
       (Name (name "{name} {i}"))
       (Monster)
-      (BlocksTile))))
+      (BlocksTile)
+      (CombatStats (max-hp 16) (hp 16) (defense 1) (power 4)))))
 
 
 ;;
