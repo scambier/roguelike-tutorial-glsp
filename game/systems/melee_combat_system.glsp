@@ -7,9 +7,9 @@
         (let target-name (get-cmp world target Name))
         (let damage (max 0 (- [stats 'power] [target-stats 'defense])))
         (if (eq? damage 0)
-          (console:log "{[name 'name]} is unable to hurt {[target-name 'name]}")
+          (log:add "{[name 'name]} is unable to hurt {[target-name 'name]}")
           (do
-            (console:log "{[name 'name]} hits {[target-name 'name]} for {damage} hp")
+            (log:add "{[name 'name]} hits {[target-name 'name]} for {damage} hp")
             (.new-damage SufferDamage target damage))))))
   (.clear-cmp world WantsToMelee))
 

@@ -18,6 +18,13 @@ pub enum GlspCommand {
     },
     SetScanlines(bool),
     SetBurnColor(RGB),
+    Print {
+        x: i32,
+        y: i32,
+        output: String,
+        fg: RGB,
+        bg: RGB,
+    },
     Exit,
 }
 

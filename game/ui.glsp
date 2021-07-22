@@ -1,0 +1,16 @@
+(let-fn print-log ()
+  (let y (- :height 6))
+  (let y2 (- :height 1))
+  (for s in (rev (log:get))
+    (when (< y y2)
+      (print 2 y s))
+    (inc! y)))
+
+(defn draw-ui ()
+  (let player (.fetch :world 'player))
+  (let stats (get-cmp :world player CombatStats))
+  (draw-box 0 (- :height 7) :width 7)
+  (print 12 (- :height 7) "HP: {[stats 'hp]}/{[stats 'max-hp]}" (Color 1 1 0) :bg-color)
+  (draw-h-bar 28 (- :height 7) 51 [stats 'hp] [stats 'max-hp] (Color 1 0 0) :bg-color)
+  (print-log ))
+

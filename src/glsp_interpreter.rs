@@ -2,6 +2,7 @@ use glsp::{compile, prelude::*};
 
 use crate::{
     api::{self, KeyPressed},
+    gamelog::GameLog,
     *,
 };
 
@@ -71,15 +72,27 @@ impl GlspInterpreter {
             glsp::add_rglobal(api::CommandQueue::new());
             glsp::add_rglobal(KeyPressed::new());
 
+            // log
+            glsp::add_rglobal(GameLog::new());
+            glsp::bind_rfn("msg", &|s: String| {
+                GameLog::borrow_mut().add(s);
+            })?;
+
             // constants & globals
             glsp::bind_global("ctx:key", "")?;
             glsp::bind_global(":width", WIDTH)?;
             glsp::bind_global(":height", HEIGHT)?;
+            glsp::bind_global(":bg-color", RGB::named(BG_COLOR))?;
+
+            // log
+            glsp::bind_rfn("log:add", &GameLog::add)?;
+            glsp::bind_rfn("log:get", &GameLog::get_messages)?;
 
             // api
-            api::bind_api()?;
             Map::bind_map()?;
             World::bind_world()?;
+            api::bind_api()?;
+            gui::bind_gui()?;
 
             // colors
             glsp::bind_rfn("Color", &api::rgb_color)?;
@@ -130,9 +143,11 @@ impl GlspInterpreter {
             for command in queue.0.iter() {
                 match command {
                     GlspCommand::Cls => {
-                        ctx.set_active_console(0);
+                        ctx.set_active_console(CONSOLE_BG);
                         ctx.cls_bg(RGB::named(GREY15));
-                        ctx.set_active_console(1);
+                        ctx.set_active_console(CONSOLE_CHARS);
+                        ctx.cls_bg(RGB::named(GREY15));
+                        ctx.set_active_console(CONSOLE_TEXT);
                         ctx.cls_bg(RGB::named(GREY15));
                     }
                     GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
@@ -144,7 +159,10 @@ impl GlspInterpreter {
                         bg,
                         console,
                     } => {
-                        ctx.set_active_console(*console);
+                        let console = *console;
+                        if ctx.active_console != console {
+                            ctx.set_active_console(console);
+                        }
                         ctx.set(*x, *y, *fg, *bg, *glyph);
                     }
                     GlspCommand::Exit => ctx.quit(),
@@ -155,6 +173,15 @@ impl GlspInterpreter {
                     GlspCommand::SetBurnColor(color) => {
                         ctx.with_post_scanlines(true);
                         ctx.screen_burn_color(*color);
+                    }
+                    GlspCommand::Print {
+                        x,
+                        y,
+                        output,
+                        fg,
+                        bg,
+                    } => {
+                        ctx.print_color(*x, *y, *fg, *bg, output);
                     }
                 };
             }

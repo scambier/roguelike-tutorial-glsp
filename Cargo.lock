@@ -1383,7 +1383,6 @@ dependencies = [
  "bracket-lib",
  "getrandom",
  "glsp",
- "lazy_static",
  "notify",
  "num-derive",
  "num-traits",

@@ -10,7 +10,7 @@ version = "0.1.0"
 bracket-lib = {git = "https://github.com/amethyst/bracket-lib"}
 getrandom = {version = "0.2", features = ["js"]}
 glsp = {version = "0.2.0", features = ["compiler"]}
-lazy_static = "1.4.0"
+# lazy_static = "1.4.0"
 notify = "4.0.17"
 num-derive = "0.3.3"
 num-traits = "0.2.14"

@@ -36,6 +36,7 @@ impl Tile {
             console: 0,
         }
     }
+
     pub fn floor() -> Self {
         let dot = ss_idx(0, 256);
         let choices = [

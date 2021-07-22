@@ -1,15 +1,22 @@
 (defn sys:damage (world)
   (for (e (stats damage)) in
     (query world CombatStats SufferDamage)
-    (dec! [stats 'hp] (+ ..[damage 'amount])))
+    (dec! [stats 'hp] (+ ..[damage 'amount]))
+    (= [stats 'hp] (max [stats 'hp] 0)))
   (.clear-cmp world SufferDamage))
 
 
 (defn sys:damage:clean-dead (world)
   (let dead (arr))
+  (let player (.fetch world 'player))
   (for (entity (stats)) in (query world CombatStats)
     (when (< [stats 'hp] 1)
-      (push! dead entity)))
+      (let name (get-cmp world entity Name))
+      (if (eq? player entity)
+        (log:add "yer dead")
+        (do
+          (log:add "{[name 'name]} is dead")
+          (push! dead entity)))))
 
   (for e in dead
     (.delete world e)))

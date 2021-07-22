@@ -5,10 +5,12 @@
 mod api;
 mod ecs;
 mod glsp_interpreter;
+mod gui;
 mod keycodes;
 mod map;
 mod tile;
 mod utils;
+mod gamelog;
 
 use api::GlspCommand;
 use bracket_lib::prelude::*;
@@ -23,14 +25,20 @@ use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 45;
+const BG_COLOR: (u8, u8, u8) = GREY15;
+
+const CONSOLE_BG: usize = 0;
+const CONSOLE_CHARS: usize = 1;
+const CONSOLE_TEXT: usize = 2;
 
 struct State {
     interpreter: GlspInterpreter,
 }
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.interpreter.tick(ctx);
-        ctx.set_active_console(1);
+        ctx.set_active_console(CONSOLE_CHARS);
         ctx.print(0, 0, format!("{:} fps", ctx.fps));
     }
 }
@@ -51,12 +59,14 @@ fn main() -> BError {
         .with_title("Roguelike Tutorial")
         .with_dimensions(WIDTH, HEIGHT)
         .with_tile_dimensions(tile_size * 2, tile_size * 2)
-        // Console 0
         .with_font("MRMOTEXT_rexpaint.png", tile_size, tile_size)
-        .with_simple_console(WIDTH, HEIGHT, "MRMOTEXT_rexpaint.png")
-        // Console 1
         .with_font("Acorntileset8x8.png", tile_size, tile_size)
+        // Console 0 - Bg
+        .with_simple_console(WIDTH, HEIGHT, "MRMOTEXT_rexpaint.png")
+        // Console 1 - Chars
         .with_sparse_console_no_bg(WIDTH, HEIGHT, "Acorntileset8x8.png")
+        // Console 2 - Text
+        .with_sparse_console(WIDTH, HEIGHT, "Acorntileset8x8.png")
         // Options
         // .with_automatic_console_resize(true)
         .with_vsync(false)

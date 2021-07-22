@@ -1,6 +1,6 @@
 (defn new-map-rooms-and-corridors ()
   (let
-    map (Map :width :height),
+    map (Map :width (- :height 7)),
     max-rooms 30, min-size 6, max-size 10,
     rng (RNG))
 
