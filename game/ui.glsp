@@ -12,5 +12,5 @@
   (draw-box 0 (- :height 7) :width 7)
   (print 12 (- :height 7) "HP: {[stats 'hp]}/{[stats 'max-hp]}" (Color 1 1 0) :bg-color)
   (draw-h-bar 28 (- :height 7) 51 [stats 'hp] [stats 'max-hp] (Color 1 0 0) :bg-color)
-  (print-log ))
+  (print-log))
 

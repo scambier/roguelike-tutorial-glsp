@@ -83,6 +83,7 @@ impl GlspInterpreter {
             glsp::bind_global(":width", WIDTH)?;
             glsp::bind_global(":height", HEIGHT)?;
             glsp::bind_global(":bg-color", RGB::named(BG_COLOR))?;
+            glsp::bind_global(":mouse", (0, 0))?;
 
             // log
             glsp::bind_rfn("log:add", &GameLog::add)?;
@@ -91,7 +92,8 @@ impl GlspInterpreter {
             // api
             Map::bind_map()?;
             World::bind_world()?;
-            api::bind_api()?;
+            api::bind_utils()?;
+            api::bind_geometry()?;
             gui::bind_gui()?;
 
             // colors
@@ -120,7 +122,7 @@ impl GlspInterpreter {
             match glsp::global::<_, String>("ctx:key") {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("{:?}", e);
+                    // println!("{:?}", e);
                     panic!();
                 }
             }
@@ -134,6 +136,9 @@ impl GlspInterpreter {
                 glsp::set_global("ctx:key", "")?;
                 KeyPressed::borrow_mut().0.take();
             }
+
+            // Update
+            glsp::set_global(":mouse", ctx.mouse_pos())?;
 
             // Call the `(defn main:update)` function
             self.call_update();
@@ -183,6 +188,7 @@ impl GlspInterpreter {
                     } => {
                         ctx.print_color(*x, *y, *fg, *bg, output);
                     }
+                    GlspCommand::SetBgColor { x, y, bg } => ctx.set_bg(*x, *y, *bg),
                 };
             }
             queue.0.clear();

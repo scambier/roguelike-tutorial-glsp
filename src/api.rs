@@ -1,4 +1,4 @@
-use crate::keycodes::StrKeyCode;
+use crate::{keycodes::StrKeyCode, utils::ss_idx};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 
@@ -12,6 +12,11 @@ pub enum GlspCommand {
         fg: RGB,
         bg: RGB,
         console: usize,
+    },
+    SetBgColor {
+        x: i32,
+        y: i32,
+        bg: RGB,
     },
     SetConsole {
         id: usize,
@@ -50,18 +55,22 @@ impl KeyPressed {
 
 impl RGlobal for KeyPressed {}
 
-pub fn bind_api() -> GResult<()> {
-    glsp::bind_rfn("console:log", &console::log::<String>)?;
+pub fn bind_utils() -> GResult<()> {
     glsp::bind_rfn("cls", &cls)?;
     glsp::bind_rfn("set", &set_char_glsp)?;
+    glsp::bind_rfn("set_bg", &set_bg_glsp)?;
     glsp::bind_rfn("exit", &exit)?;
+    glsp::bind_rfn("ss-idx", &ss_idx)?;
 
-    // Context
-    // glsp::bind_rfn("ctx:key?", &is_key_pressed)?;
+    // Screen
     glsp::bind_rfn("ctx:scanlines!", &set_scanlines)?;
     glsp::bind_rfn("ctx:burn!", &set_burn_color)?;
     glsp::bind_rfn("ctx:console!", &set_console)?;
 
+    Ok(())
+}
+
+pub fn bind_geometry() -> GResult<()> {
     // Rect
     glsp::bind_rfn("Rect", &Rect::with_size::<i32>)?;
     glsp::RClassBuilder::<Rect>::new()
@@ -107,6 +116,12 @@ pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
         }
     };
     set_char(x, y, glyph, fg, bg, console);
+}
+
+pub fn set_bg_glsp(x: i32, y: i32, bg: &RGB) {
+    CommandQueue::borrow_mut()
+        .0
+        .push(GlspCommand::SetBgColor { x, y, bg: *bg });
 }
 
 /// Draws a char on screen (general fn)
