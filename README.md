@@ -26,7 +26,7 @@ Then, simply type `cargo run` to execute it.
 - [x] Part 4 - Field of view
 - [x] [Part 5](https://github.com/scambier/roguelike-tutorial-glsp/tree/adef553af912c3dbd033b7cd351cb0c88b1f3c53) - [Demo](https://scambier.xyz/roguelike/week3/) - Placing enemies and kicking them (harmlessly)
 - [x] Part 6 - Doing (and taking) some damage
-- [x] [Part 7](https://github.com/scambier/roguelike-tutorial-glsp/tree/bfa42d680424524bd855ee63e38f6d8a9d8fff4e) - [Demo](https://scambier.xyz/roguelike/week4/) - Creating the Interface
+- [x] [Part 7](https://github.com/scambier/roguelike-tutorial-glsp/tree/0098affd0b46961c9c1b9a27da2c83ad3e526dc9) - [Demo](https://scambier.xyz/roguelike/week4/) - Creating the Interface
 - [ ] Part 8 - Items and Inventory
 - [ ] Part 9 - Ranged Scrolls and Targeting
 - [ ] Part 10 - Saving and loading
