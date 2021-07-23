@@ -150,9 +150,9 @@ impl GlspInterpreter {
                     GlspCommand::Cls => {
                         ctx.set_active_console(CONSOLE_BG);
                         ctx.cls_bg(RGB::named(GREY15));
-                        ctx.set_active_console(CONSOLE_CHARS);
+                        ctx.set_active_console(CONSOLE_FG);
                         ctx.cls_bg(RGB::named(GREY15));
-                        ctx.set_active_console(CONSOLE_TEXT);
+                        ctx.set_active_console(CONSOLE_UI);
                         ctx.cls_bg(RGB::named(GREY15));
                     }
                     GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
