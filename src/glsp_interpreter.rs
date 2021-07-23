@@ -148,12 +148,10 @@ impl GlspInterpreter {
             for command in queue.0.iter() {
                 match command {
                     GlspCommand::Cls => {
-                        ctx.set_active_console(CONSOLE_BG);
-                        ctx.cls_bg(RGB::named(GREY15));
-                        ctx.set_active_console(CONSOLE_FG);
-                        ctx.cls_bg(RGB::named(GREY15));
-                        ctx.set_active_console(CONSOLE_UI);
-                        ctx.cls_bg(RGB::named(GREY15));
+                        for i in 0..=3 {
+                            ctx.set_active_console(i);
+                            ctx.cls_bg(RGB::named(GREY15));
+                        }
                     }
                     GlspCommand::SetConsole { id } => ctx.set_active_console(*id),
                     GlspCommand::SetChar {

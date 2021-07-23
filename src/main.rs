@@ -4,13 +4,13 @@
 
 mod api;
 mod ecs;
+mod gamelog;
 mod glsp_interpreter;
 mod gui;
 mod keycodes;
 mod map;
 mod tile;
 mod utils;
-mod gamelog;
 
 use api::GlspCommand;
 use bracket_lib::prelude::*;
@@ -30,6 +30,7 @@ const BG_COLOR: (u8, u8, u8) = GREY15;
 const CONSOLE_BG: usize = 0;
 const CONSOLE_FG: usize = 1; // Transparent background
 const CONSOLE_UI: usize = 2;
+const CONSOLE_MOUSE: usize = 3;
 
 struct State {
     interpreter: GlspInterpreter,
@@ -60,6 +61,8 @@ fn main() -> BError {
         .with_sparse_console_no_bg(WIDTH, HEIGHT, "tileset_acorn_mrmotext.png")
         // Console 2 - Text
         .with_sparse_console(WIDTH, HEIGHT, "tileset_acorn_mrmotext.png")
+        // Console 3 - Mouse overlay
+        .with_sparse_console_no_bg(WIDTH, HEIGHT, "tileset_acorn_mrmotext.png")
         // Options
         // .with_automatic_console_resize(true)
         .with_vsync(false)

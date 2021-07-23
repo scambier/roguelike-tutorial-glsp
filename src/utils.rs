@@ -1,4 +1,5 @@
 /// Spritesheet index
+#[inline(always)]
 pub fn ss_idx(x: u16, y: u16) -> u16 {
     x / 8 + y / 8 * 16
 }

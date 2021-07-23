@@ -1,4 +1,4 @@
-use crate::{keycodes::StrKeyCode, utils::ss_idx};
+use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 
@@ -107,10 +107,23 @@ pub fn set_console(id: usize) {
 }
 
 /// Draws a char on screen (glsp fn)
-pub fn set_char_glsp(x: i32, y: i32, glyph: Val, fg: &RGB, bg: &RGB) {
-    let (glyph, console) = match glyph {
-        Val::Int(g) => (g as u16, 0),
-        Val::Char(c) => (to_cp437(c), 1),
+pub fn set_char_glsp(
+    x: i32,
+    y: i32,
+    glyph: Val,
+    fg: &RGB,
+    bg: Option<&RGB>,
+    console: Option<usize>,
+) {
+    let bg = &match bg {
+        Some(bg) => *bg,
+        None => RGB::named(BG_COLOR),
+    };
+    let (glyph, console) = match (glyph, console) {
+        (Val::Int(g), None) => (g as u16, 0),
+        (Val::Int(g), Some(c)) => (g as u16, c),
+        (Val::Char(g), None) => (to_cp437(g), 1),
+        (Val::Char(g), Some(c)) => (to_cp437(g), c),
         _ => {
             panic!("invalid glyph")
         }
