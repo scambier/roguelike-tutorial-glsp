@@ -8,6 +8,8 @@ The goal of this project is not really to make a roguelike in itself, but to lea
 
 ## Run the game
 
+[Demo](https://scambier.xyz/roguelike/week4/)
+
 a) You'll need to [install Rust](https://www.rust-lang.org/tools/install).  
 b) The [MRMOTEXT tileset](https://mrmotarius.itch.io/mrmotext) tileset is required. Extract the `MRMOTEXT_rexpaint.png` file in the `resources` folder.
 
@@ -23,8 +25,8 @@ Then, simply type `cargo run` to execute it.
 - [x] [Part 3](https://github.com/scambier/roguelike-tutorial-glsp/tree/c43611f3893810bf3e816cb2faa1ab2f1a5b21f6) - [Demo](https://scambier.xyz/roguelike/week2/) - Generating a dungeon
 - [x] Part 4 - Field of view
 - [x] [Part 5](https://github.com/scambier/roguelike-tutorial-glsp/tree/adef553af912c3dbd033b7cd351cb0c88b1f3c53) - [Demo](https://scambier.xyz/roguelike/week3/) - Placing enemies and kicking them (harmlessly)
-- [ ] Part 6 - Doing (and taking) some damage
-- [ ] Part 7 - Creating the Interface
+- [x] Part 6 - Doing (and taking) some damage
+- [x] [Part 7](https://github.com/scambier/roguelike-tutorial-glsp/tree/bfa42d680424524bd855ee63e38f6d8a9d8fff4e) - Creating the Interface
 - [ ] Part 8 - Items and Inventory
 - [ ] Part 9 - Ranged Scrolls and Targeting
 - [ ] Part 10 - Saving and loading
