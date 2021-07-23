@@ -6,11 +6,60 @@
       (print 2 y s))
     (inc! y)))
 
+
+(let-fn draw-tooltips ()
+  (let map (.fetch :world 'map))
+  (let tooltip (arr))
+  (for (entity (name pos)) in (query :world Name Position)
+    (let idx (.xy-idx map [pos 'x] [pos 'y]))
+    (when (and
+            (eq? [pos 'x] [:mouse 0])
+            (eq? [pos 'y] [:mouse 1])
+            (.visible-tile? map idx))
+      (push! tooltip [name 'name])))
+
+  (when (not (empty? tooltip))
+    (let width 0)
+    (for s in tooltip
+      (when (< width (len s))
+        (= width (len s))))
+    (inc! width 3)
+
+    (if (> [:mouse 0] (- :width 10))
+      (do
+        (let arrow-pos (Point (- [:mouse 0] 2) [:mouse 1]))
+        (let left-x (- [:mouse 0] width))
+        (let y [:mouse 1])
+        (for s in tooltip
+          (print left-x y s (Color 1 1 1) (Color 0.5 0.5 0.5))
+          (let padding (- (- width (len s)) 1))
+          (forn (i 0 padding)
+            (print (- [arrow-pos 'x] i) y " " (Color 1 1 1) (Color 0.5 0.5 0.5)))
+          (inc! y))
+        (print [arrow-pos 'x] [arrow-pos 'y] "->" (Color 1 1 1) (Color 0.5 0.5 0.5)))
+      (do ;else
+        (let arrow-pos (Point (+ [:mouse 0] 1) [:mouse 1]))
+        (let left-x (+ [:mouse 0] 3))
+        (let y [:mouse 1])
+        (for s in tooltip
+          (print (+ left-x 1) y s (Color 1 1 1) (Color 0.5 0.5 0.5))
+          (let padding (- width (len s) 1))
+          (forn (i 0 padding)
+            (print (+ [arrow-pos 'x] 1 i) y " " (Color 1 1 1) (Color 0.5 0.5 0.5)))
+          (inc! y))
+        (print [arrow-pos 'x] [arrow-pos 'y] "<-" (Color 1 1 1) (Color 0.5 0.5 0.5))))))
+
 (defn draw-ui ()
+  ; log rectangle
   (let player (.fetch :world 'player))
   (let stats (get-cmp :world player CombatStats))
   (draw-box 0 (- :height 7) :width 7)
   (print 12 (- :height 7) "HP: {[stats 'hp]}/{[stats 'max-hp]}" (Color 1 1 0) :bg-color)
   (draw-h-bar 28 (- :height 7) 51 [stats 'hp] [stats 'max-hp] (Color 1 0 0) :bg-color)
+  ; log messages
   (print-log)
-  (set [:mouse 0] [:mouse 1] (ss-idx 8 248) (Color 1 0 1) #n 3))
+
+  ; draw mouse cursor
+  (set [:mouse 0] [:mouse 1] (ss-idx 8 248) (Color 1 0 1) #n 3)
+
+  (draw-tooltips))

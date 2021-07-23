@@ -84,7 +84,6 @@ pub fn bind_geometry() -> GResult<()> {
     // Point
     glsp::bind_rfn("Point", &Point::new::<i32>)?;
     glsp::RClassBuilder::<Point>::new()
-        .met("init", &|x: i32, y: i32| Point { x, y })
         .prop_get("x", &|p: &Point| p.x)
         .prop_set("x", &|p: &mut Point, x: i32| p.x = x)
         .prop_get("y", &|p: &Point| p.y)
