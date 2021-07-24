@@ -1,11 +1,11 @@
-(defn sys:monster-ai (world)
+(defn sys:monster-ai ()
   (let
-    player (.fetch world 'player)
-    gamemap (.fetch world 'map)
-    player-pos (get-cmp world player Position)
+    player (ecs-fetch 'player)
+    gamemap (ecs-fetch 'map)
+    player-pos (get-cmp player Position)
     player-idx (.xy-idx gamemap [player-pos 'x] [player-pos 'y]))
 
-  (for (e (viewshed pos monster name)) in (query world Viewshed Position Monster Name)
+  (for (e (viewshed pos monster name)) in (query Viewshed Position Monster Name)
     (let pos-idx (.xy-idx gamemap [pos 'x] [pos 'y]))
     ; convert the viewsheld visible-tiles into an array of ids
     ; and check if the player is within range
@@ -13,7 +13,7 @@
 
     (let distance (dist2d pos player-pos))
     (if (< distance 1.5)
-      (add-cmp world e (WantsToMelee (target player)))
+      (add-cmp e (WantsToMelee (target player)))
       (do
         (when (arr-contains? visible-tiles player-idx)
           ; get path from mob to player

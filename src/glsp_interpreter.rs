@@ -121,8 +121,8 @@ impl GlspInterpreter {
             // that there a GLSP syntax error in our code
             match glsp::global::<_, String>("ctx:key") {
                 Ok(_) => {}
-                Err(e) => {
-                    // println!("{:?}", e);
+                Err(_) => {
+                    // println!("{:?}", _);
                     panic!();
                 }
             }

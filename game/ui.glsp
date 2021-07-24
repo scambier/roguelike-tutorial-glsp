@@ -8,9 +8,10 @@
 
 
 (let-fn draw-tooltips ()
-  (let map (.fetch :world 'map))
+  (let white (Color 1 1 1) grey (Color 0.5 0.5 0.5))
+  (let map (ecs-fetch 'map))
   (let tooltip (arr))
-  (for (entity (name pos)) in (query :world Name Position)
+  (for (entity (name pos)) in (query Name Position)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
     (when (and
             (eq? [pos 'x] [:mouse 0])
@@ -31,28 +32,28 @@
         (let left-x (- [:mouse 0] width))
         (let y [:mouse 1])
         (for s in tooltip
-          (print left-x y s (Color 1 1 1) (Color 0.5 0.5 0.5))
+          (print left-x y s white grey)
           (let padding (- (- width (len s)) 1))
           (forn (i 0 padding)
-            (print (- [arrow-pos 'x] i) y " " (Color 1 1 1) (Color 0.5 0.5 0.5)))
+            (print (- [arrow-pos 'x] i) y " " white grey))
           (inc! y))
-        (print [arrow-pos 'x] [arrow-pos 'y] "->" (Color 1 1 1) (Color 0.5 0.5 0.5)))
+        (print [arrow-pos 'x] [arrow-pos 'y] "->" white grey))
       (do ;else
         (let arrow-pos (Point (+ [:mouse 0] 1) [:mouse 1]))
         (let left-x (+ [:mouse 0] 3))
         (let y [:mouse 1])
         (for s in tooltip
-          (print (+ left-x 1) y s (Color 1 1 1) (Color 0.5 0.5 0.5))
+          (print (+ left-x 1) y s white grey)
           (let padding (- width (len s) 1))
           (forn (i 0 padding)
-            (print (+ [arrow-pos 'x] 1 i) y " " (Color 1 1 1) (Color 0.5 0.5 0.5)))
+            (print (+ [arrow-pos 'x] 1 i) y " " white grey))
           (inc! y))
-        (print [arrow-pos 'x] [arrow-pos 'y] "<-" (Color 1 1 1) (Color 0.5 0.5 0.5))))))
+        (print [arrow-pos 'x] [arrow-pos 'y] "<-" white grey)))))
 
 (defn draw-ui ()
   ; log rectangle
-  (let player (.fetch :world 'player))
-  (let stats (get-cmp :world player CombatStats))
+  (let player (ecs-fetch 'player))
+  (let stats (get-cmp player CombatStats))
   (draw-box 0 (- :height 7) :width 7)
   (print 12 (- :height 7) "HP: {[stats 'hp]}/{[stats 'max-hp]}" (Color 1 1 0) :bg-color)
   (draw-h-bar 28 (- :height 7) 51 [stats 'hp] [stats 'max-hp] (Color 1 0 0) :bg-color)

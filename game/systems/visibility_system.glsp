@@ -1,8 +1,8 @@
-(defn sys:visibility (world)
-  (let map (.fetch world 'map))
-  (let player (.fetch world 'player))
+(defn sys:visibility ()
+  (let map (ecs-fetch 'map))
+  (let player (ecs-fetch 'player))
 
-  (for (entity (pos viewshed)) in (query world Position Viewshed)
+  (for (entity (pos viewshed)) in (query Position Viewshed)
     (when (eq? [viewshed 'dirty] #t)
       (= [viewshed 'dirty] #f)
 

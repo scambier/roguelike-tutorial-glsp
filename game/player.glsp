@@ -1,10 +1,10 @@
 ; input manager
 ; returns #t if a key was pressed, #f otherwise
-(defn player-input (world)
+(defn player-input ()
   (let
-    player (.fetch world 'player)
-    pos (get-cmp world player Position)
-    map (.fetch world 'map))
+    player (ecs-fetch 'player)
+    pos (get-cmp player Position)
+    map (ecs-fetch 'map))
 
   (match ctx:key
     ; cardinals
@@ -25,16 +25,16 @@
 
 (defn try-move-player (map dx dy)
   (let
-    player (.fetch :world 'player)
-    map (.fetch :world 'map)
-    (pos, viewshed) (get-cmp :world player Position Viewshed)
+    player (ecs-fetch 'player)
+    map (ecs-fetch 'map)
+    (pos, viewshed) (get-cmp player Position Viewshed)
     destination (.xy-idx map (+ [pos 'x] dx) (+ [pos 'y] dy)))
 
   ; if an enemy is on the destination tile, attack it
   (for e in (.entities-at map destination)
-    (let combat (get-cmp :world e CombatStats))
+    (let combat (get-cmp e CombatStats))
     (when combat
-      (add-cmp :world player (WantsToMelee (target e)))
+      (add-cmp player (WantsToMelee (target e)))
       (return)))
 
   ; block movement on walls

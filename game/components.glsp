@@ -37,8 +37,8 @@
     (fn (target val)
       ; get or set the SufferDamage cmp
       (let suffer (or
-                    (get-cmp :world target SufferDamage)
+                    (get-cmp target SufferDamage)
                     (SufferDamage:new (arr))))
       ; add the new amount
       (push! [suffer 'amount] val)
-      (add-cmp :world target suffer))))
+      (add-cmp target suffer))))
