@@ -78,13 +78,13 @@ fn print(x: i32, y: i32, output: String, fg: Option<&RGB>, bg: Option<&RGB>) {
 fn progress_bar_h(x: i32, y: i32, w: i32, completed: i32, max: i32, fg: &RGB, bg: &RGB) {
     let filled = (w as f32 * (completed as f32 / max as f32)) as i32;
     for i in x..(x + filled) {
-        set_char(i, y, ss_idx(16, 288), fg, bg, CONSOLE_BG);
+        set_char(i, y, 178, fg, bg, CONSOLE_BG);
     }
     for i in (x + filled)..x + w {
         set_char(
             i,
             y,
-            ss_idx(0, 336),
+            176,
             &fg.lerp(RGB::named(BG_COLOR), 0.5),
             bg,
             CONSOLE_BG,

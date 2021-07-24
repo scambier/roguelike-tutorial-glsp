@@ -65,7 +65,7 @@ fn main() -> BError {
         .with_sparse_console_no_bg(WIDTH, HEIGHT, "tileset_acorn_mrmotext.png")
         // Options
         // .with_automatic_console_resize(true)
-        .with_vsync(false)
+        .with_vsync(true)
         .build()?;
 
     let interpreter = GlspInterpreter::new();
