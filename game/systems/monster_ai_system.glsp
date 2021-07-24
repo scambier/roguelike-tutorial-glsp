@@ -6,24 +6,29 @@
     player-idx (.xy-idx gamemap [player-pos 'x] [player-pos 'y]))
 
   (for (e (viewshed pos monster name)) in (query Viewshed Position Monster Name)
-    (let pos-idx (.xy-idx gamemap [pos 'x] [pos 'y]))
-    ; convert the viewsheld visible-tiles into an array of ids
-    ; and check if the player is within range
     (let visible-tiles (arr ..(map (fn1 (.xy-idx gamemap [_ 'x] [_ 'y])) [viewshed 'visible-tiles])))
 
-    (let distance (dist2d pos player-pos))
-    (if (< distance 1.5)
-      (add-cmp e (WantsToMelee (target player)))
-      (do
-        (when (arr-contains? visible-tiles player-idx)
-          ; get path from mob to player
-          (let path (.a* gamemap pos-idx player-idx))
+    ; if the player is in view, set a destination to move towards them
+    (when (arr-contains? visible-tiles player-idx)
 
-          ; if a path exists, move mob towards player
-          ; FIXME: 2 monsters can end on the same tile at the same time
-          (when (and [path 'success] (> (len [path 'steps]) 2))
-            (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
-            (= [pos 'x] [new-pos 'x])
-            (= [pos 'y] [new-pos 'y])
-            (= [viewshed 'dirty] #t)))))))
+      (add-cmp e (Destination (x [player-pos 'x]) (y [player-pos 'y])))
+      (let distance (dist2d pos player-pos))
+      (when (< distance 1.5)
+        ; if the player is close, fight them and stop here
+        (add-cmp e (WantsToMelee (target player)))
+        (return)))
 
+    ; if the monster has a Destination, move towards it
+    (let dest (get-cmp e Destination))
+    (when dest
+      (let dest-idx (.xy-idx gamemap [dest 'x] [dest 'y]))
+      (let pos-idx (.xy-idx gamemap [pos 'x] [pos 'y]))
+      ; get path from monster to player
+      (let path (.a* gamemap pos-idx dest-idx))
+      ; if a path exists, move mob towards player
+      ; FIXME: 2 monsters can end on the same tile at the same time
+      (when (and [path 'success] (> (len [path 'steps]) 2))
+        (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
+        (= [viewshed 'dirty] #t)
+        (= [pos 'x] [new-pos 'x])
+        (= [pos 'y] [new-pos 'y])))))

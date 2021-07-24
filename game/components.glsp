@@ -42,3 +42,6 @@
       ; add the new amount
       (push! [suffer 'amount] val)
       (add-cmp target suffer))))
+
+(defstruct Destination
+  x y)
