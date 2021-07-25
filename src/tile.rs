@@ -1,4 +1,7 @@
-use crate::utils::{make_weighted_vec, ss_idx};
+use crate::{
+    utils::{make_weighted_vec, ss_idx},
+    RNG,
+};
 use bracket_lib::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -26,7 +29,7 @@ impl Tile {
             (ss_idx(96, 216), 20),
             (ss_idx(104, 216), 1),
         ]);
-        let mut rng = RandomNumberGenerator::new();
+        let mut rng = RNG.lock().unwrap();
 
         let fg = RGB::named(ORANGE3);
         let bg = RGB::from_hex("#c5b291").unwrap() * RGB::named(GREY20);
@@ -56,7 +59,7 @@ impl Tile {
             (ss_idx(24, 144), 1), // skeleton
         ];
         let weighted = make_weighted_vec(&choices);
-        let mut rng = RandomNumberGenerator::new();
+        let mut rng = RNG.lock().unwrap();
         let glyph = *rng.random_slice_entry(&weighted).unwrap();
         let g = rng.range(0.5, 0.6);
         let fg = RGB::from_f32(g * 1.2, g * 1.2, g * 1.2);

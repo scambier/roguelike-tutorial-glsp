@@ -1,5 +1,5 @@
 use bracket_lib::prelude::*;
-use glsp::{GResult, RGlobal};
+use glsp::{GResult, RGlobal, Val};
 
 use crate::{
     api::{set_char, set_console, CommandQueue, GlspCommand},
@@ -55,7 +55,7 @@ fn draw_box(x: i32, y: i32, w: i32, h: i32, fg: Option<&RGB>, bg: Option<&RGB>) 
     }
 }
 
-fn print(x: i32, y: i32, output: String, fg: Option<&RGB>, bg: Option<&RGB>) {
+fn print(x: i32, y: i32, output: Val, fg: Option<&RGB>, bg: Option<&RGB>) {
     let fg = &match fg {
         Some(fg) => *fg,
         None => RGB::named(WHITE),
@@ -67,7 +67,7 @@ fn print(x: i32, y: i32, output: String, fg: Option<&RGB>, bg: Option<&RGB>) {
     let command = GlspCommand::Print {
         x,
         y,
-        output,
+        output: output.to_string(),
         fg: *fg,
         bg: *bg,
     };

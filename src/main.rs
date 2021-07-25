@@ -21,7 +21,7 @@ use num_traits::FromPrimitive;
 use std::{sync::Mutex, time::UNIX_EPOCH};
 
 lazy_static! {
-    pub static ref RNG_SEED: Mutex<u64> = Mutex::new(UNIX_EPOCH.elapsed().unwrap().as_secs());
+    pub static ref RNG_SEED: Mutex<i32> = Mutex::new(UNIX_EPOCH.elapsed().unwrap().as_secs() as i32);
     pub static ref RNG: Mutex<RandomNumberGenerator> = Mutex::new(RandomNumberGenerator::new());
 }
 
@@ -42,7 +42,6 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.interpreter.tick(ctx);
         ctx.set_active_console(CONSOLE_FG);
-        ctx.print(0, 0, format!("{:} fps", ctx.fps));
     }
 }
 
@@ -67,7 +66,7 @@ fn main() -> BError {
         .with_sparse_console_no_bg(WIDTH, HEIGHT, "tileset_acorn_mrmotext.png")
         // Options
         // .with_automatic_console_resize(true)
-        .with_vsync(true)
+        .with_vsync(false)
         .build()?;
 
     let interpreter = GlspInterpreter::new();

@@ -68,4 +68,7 @@
   ; mouse cursor
   (set [:mouse 0] [:mouse 1] (ss-idx 8 248) (Color 1 0 1) #n 3)
 
-  (draw-tooltips))
+  (draw-tooltips)
+  (print 0 0 "{(int :fps)}fps")
+  (let seed "seed: {rng:seed}")
+  (print (- :width (len seed)) 0 seed))

@@ -23,7 +23,6 @@ pub fn str_to_hashed(str: String) -> u64 {
         return 0;
     }
     for chr in str.chars() {
-        println!("{:?}", chr.to_digit(10));
         hash = ((hash << 5) - hash) + chr as u64;
         hash |= 0;
     }

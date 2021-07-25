@@ -5,6 +5,7 @@ use glsp::{compile, prelude::*};
 use crate::{
     api::{self, KeyPressed},
     gamelog::GameLog,
+    utils::str_to_hashed,
     *,
 };
 
@@ -80,6 +81,7 @@ impl GlspInterpreter {
             glsp::bind_global(":height", HEIGHT)?;
             glsp::bind_global(":bg-color", RGB::named(BG_COLOR))?;
             glsp::bind_global(":mouse", (0, 0))?;
+            glsp::bind_global(":fps", 0)?;
 
             // log
             glsp::add_rglobal(GameLog::new());
@@ -110,7 +112,16 @@ impl GlspInterpreter {
                 let mut rng = RNG.lock().unwrap();
                 rng.range(min, max)
             })?;
-            glsp::bind_global::<_, RandomNumberGenerator>(":rng", RandomNumberGenerator::new())?;
+            glsp::bind_rfn("rng:seed=", &|seed: Val| {
+                let seed_i32 = match seed {
+                    Val::Int(v) => v,
+                    _ =>  str_to_hashed(seed.to_string()) as i32
+                };
+                *RNG_SEED.lock().unwrap() = seed_i32;
+                *RNG.lock().unwrap() = RandomNumberGenerator::seeded(seed_i32 as u64);
+                glsp::set_global("rng:seed", seed)
+            })?;
+            glsp::bind_global("rng:seed", UNIX_EPOCH.elapsed().unwrap().as_secs().to_string())?;
 
             // Call the `(defn main:init)` function
             self.call_init();
@@ -132,7 +143,7 @@ impl GlspInterpreter {
                     panic!();
                 }
             }
-            // Update the :pressed-key global
+            // Update globals
             if let Some(key) = ctx.key {
                 // convert VirtualKeyCode to StrKeyCode
                 let key: StrKeyCode = FromPrimitive::from_i32(key as i32).unwrap();
@@ -142,9 +153,8 @@ impl GlspInterpreter {
                 glsp::set_global(":pressed-key", "")?;
                 KeyPressed::borrow_mut().0.take();
             }
-
-            // Update
             glsp::set_global(":mouse", ctx.mouse_pos())?;
+            glsp::set_global(":fps", ctx.fps)?;
 
             // Call the `(defn main:update)` function
             self.call_update();
