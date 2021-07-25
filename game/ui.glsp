@@ -11,14 +11,14 @@
   (let white (Color 1 1 1)
     grey (Color 0.3 0.3 0.3)
     yellow (Color 1 1 0))
-  (let map (ecs-fetch 'map))
+  (let map (ecs:fetch 'map))
   (let tooltip (arr))
-  (for (entity (name pos)) in (query Name Position)
+  (for (entity (name pos)) in (ecs:query Name Position)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
     (when (and
             (eq? [pos 'x] [:mouse 0])
             (eq? [pos 'y] [:mouse 1])
-            (.visible-tile? map idx))
+            (.visible? map idx))
       (push! tooltip [name 'name])))
 
   (when (not (empty? tooltip))
@@ -54,8 +54,8 @@
 
 (defn draw-ui ()
   ; log rectangle
-  (let player (ecs-fetch 'player))
-  (let stats (get-cmp player CombatStats))
+  (let player (ecs:fetch 'player))
+  (let stats (ecs:get-cmp player CombatStats))
   (draw-box 0 (- :height 7) :width 7)
   (print 12 (- :height 7) "HP: {[stats 'hp]}/{[stats 'max-hp]}" (Color 1 1 0) :bg-color)
 

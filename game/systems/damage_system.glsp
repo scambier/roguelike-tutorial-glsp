@@ -1,17 +1,17 @@
 (defn sys:damage ()
   (for (e (stats damage)) in
-    (query CombatStats SufferDamage)
+    (ecs:query CombatStats SufferDamage)
     (dec! [stats 'hp] (+ ..[damage 'amount]))
     (= [stats 'hp] (max [stats 'hp] 0)))
-  (ecs-clear SufferDamage))
+  (ecs:clear SufferDamage))
 
 
 (defn sys:damage:clean-dead ()
   (let dead (arr))
-  (let player (ecs-fetch 'player))
-  (for (entity (stats)) in (query CombatStats)
+  (let player (ecs:fetch 'player))
+  (for (entity (stats)) in (ecs:query CombatStats)
     (when (< [stats 'hp] 1)
-      (let name (get-cmp entity Name))
+      (let name (ecs:get-cmp entity Name))
       (if (eq? player entity)
         (log:add "yer dead")
         (do

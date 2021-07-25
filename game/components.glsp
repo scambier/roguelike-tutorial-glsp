@@ -37,11 +37,11 @@
     (fn (target val)
       ; get or set the SufferDamage cmp
       (let suffer (or
-                    (get-cmp target SufferDamage)
+                    (ecs:get-cmp target SufferDamage)
                     (SufferDamage:new (arr))))
       ; add the new amount
       (push! [suffer 'amount] val)
-      (add-cmp target suffer))))
+      (ecs:add-cmp target suffer))))
 
 (defstruct Destination
   x y)

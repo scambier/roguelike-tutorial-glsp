@@ -34,23 +34,26 @@
 ; ECS syntactic sugar
 ;
 
-(defn add-entity (..components)
+(defn ecs:spawn (..components)
   (.add-entity :world (arr ..components)))
 
-(defn query (..components)
+(defn ecs:query (..components)
   (.query :world (arr ..components)))
 
-(defn get-cmp (entity ..components)
+(defn ecs:get-cmp (entity ..components)
   (let res (.get-cmp :world entity (arr ..components)))
   (if (eq? (len res) 1)
     [res 0]
     res))
 
-(defn add-cmp (entity ..components)
+(defn ecs:add-cmp (entity ..components)
   (.add-cmp :world entity (arr ..components)))
 
-(defn ecs-fetch (sym)
+(defn ecs:set (sym val)
+  (.save :world sym val))
+
+(defn ecs:fetch (sym)
   (.fetch :world sym))
 
-(defn ecs-clear (type)
+(defn ecs:clear (type)
   (.clear-cmp :world type))

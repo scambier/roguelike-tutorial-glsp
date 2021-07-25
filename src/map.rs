@@ -28,13 +28,13 @@ impl Map {
             .met("xy-idx", &Map::xy_idx)
             .met("idx-xy", &Map::idx_xy)
             // Rooms / corridors
-            .met("get-room", &Map::get_room)
+            // .met("get-room", &Map::get_room)
             .met("get-rooms", &Map::get_rooms)
             .met("apply-room", &Map::apply_room)
             .met("add-room", &Map::add_room)
             .met("apply-horizontal-tunnel", &Map::apply_horizontal_tunnel)
             .met("apply-vertical-tunnel", &Map::apply_vertical_tunnel)
-            .met("is-walkable", &|map: &Map, idx: usize| {
+            .met("walkable?", &|map: &Map, idx: usize| {
                 !map.blocked_tiles[idx]
             })
             // Fov / Pathing
@@ -56,7 +56,7 @@ impl Map {
             // Visibility
             .met("reveal-tile!", &Map::add_tile_to_revealed)
             .met("show-tile!", &Map::add_tile_to_visible)
-            .met("visible-tile?", &|map: &Map, idx: usize| -> bool {
+            .met("visible?", &|map: &Map, idx: usize| -> bool {
                 map.visible_tiles[idx]
             })
             .met("clear-visible-tiles!", &|map: &mut Map| {

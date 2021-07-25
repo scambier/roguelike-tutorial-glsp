@@ -19,10 +19,6 @@ use num_traits::FromPrimitive;
 
 use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
 
-// lazy_static! {
-//     pub static ref SEED: u64 = RandomNumberGenerator::new().rand();
-// }
-
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 45;
 const BG_COLOR: (u8, u8, u8) = GREY15;

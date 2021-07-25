@@ -1,15 +1,14 @@
 (defn new-map-rooms-and-corridors ()
   (let
     map (Map :width (- :height 7)),
-    max-rooms 30, min-size 6, max-size 10,
-    rng (RNG))
+    max-rooms 30, min-size 6, max-size 10)
 
   (forn (_ 0 max-rooms)
     (let
-      w (.range rng min-size max-size)
-      h (.range rng min-size max-size)
-      x (.roll-dice rng 1 (- [map 'width] w 1))
-      y (.roll-dice rng 1 (- [map 'height] h 1))
+      w (.range :rng min-size max-size)
+      h (.range :rng min-size max-size)
+      x (.roll-dice :rng 1 (- [map 'width] w 1))
+      y (.roll-dice :rng 1 (- [map 'height] h 1))
       new-room (Rect x y w h)
       ok #t)
 
@@ -24,7 +23,7 @@
           (new-x new-y) (.center new-room)
           (prev-x prev-y) (.center (last-item rooms)))
 
-        (if (eq? (.range rng 0 2) 1)
+        (if (eq? (.range :rng 0 2) 1)
           (do
             (.apply-horizontal-tunnel map prev-x new-x prev-y)
             (.apply-vertical-tunnel map prev-y new-y new-x))

@@ -1,3 +1,5 @@
+use std::time::UNIX_EPOCH;
+
 use glsp::{compile, prelude::*};
 
 use crate::{
@@ -72,20 +74,15 @@ impl GlspInterpreter {
             glsp::add_rglobal(api::CommandQueue::new());
             glsp::add_rglobal(KeyPressed::new());
 
-            // log
-            glsp::add_rglobal(GameLog::new());
-            glsp::bind_rfn("msg", &|s: String| {
-                GameLog::borrow_mut().add(s);
-            })?;
-
             // constants & globals
-            glsp::bind_global("ctx:key", "")?;
+            glsp::bind_global(":pressed-key", "")?;
             glsp::bind_global(":width", WIDTH)?;
             glsp::bind_global(":height", HEIGHT)?;
             glsp::bind_global(":bg-color", RGB::named(BG_COLOR))?;
             glsp::bind_global(":mouse", (0, 0))?;
 
             // log
+            glsp::add_rglobal(GameLog::new());
             glsp::bind_rfn("log:add", &GameLog::add)?;
             glsp::bind_rfn("log:get", &GameLog::get_messages)?;
 
@@ -98,13 +95,14 @@ impl GlspInterpreter {
 
             // colors
             glsp::bind_rfn("Color", &api::rgb_color)?;
+            glsp::bind_rfn("Color:u8", &RGB::from_u8)?;
 
             // rng
-            glsp::bind_rfn("RNG", &RandomNumberGenerator::new)?;
             glsp::RClassBuilder::<RandomNumberGenerator>::new()
                 .met("roll-dice", &RandomNumberGenerator::roll_dice)
                 .met("range", &RandomNumberGenerator::range::<i32>)
                 .build();
+            glsp::bind_global::<_, RandomNumberGenerator>(":rng", RandomNumberGenerator::new())?;
 
             // Call the `(defn main:init)` function
             self.call_init();
@@ -117,23 +115,23 @@ impl GlspInterpreter {
     pub fn tick(&self, ctx: &mut BTerm) {
         self.runtime.run(|| {
             // Quick check:
-            // If we fail to retrieve the ctx:key global, it most likely means
+            // If we fail to retrieve the :pressed-key global, it most likely means
             // that there a GLSP syntax error in our code
-            match glsp::global::<_, String>("ctx:key") {
+            match glsp::global::<_, String>(":pressed-key") {
                 Ok(_) => {}
                 Err(_) => {
-                    // println!("{:?}", _);
+                    // println!("{:?}", e);
                     panic!();
                 }
             }
-            // Update the ctx:key global
+            // Update the :pressed-key global
             if let Some(key) = ctx.key {
                 // convert VirtualKeyCode to StrKeyCode
                 let key: StrKeyCode = FromPrimitive::from_i32(key as i32).unwrap();
-                glsp::set_global("ctx:key", key.to_string().to_lowercase())?;
+                glsp::set_global(":pressed-key", key.to_string().to_lowercase())?;
                 KeyPressed::borrow_mut().0.replace(key);
             } else {
-                glsp::set_global("ctx:key", "")?;
+                glsp::set_global(":pressed-key", "")?;
                 KeyPressed::borrow_mut().0.take();
             }
 

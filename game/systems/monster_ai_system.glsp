@@ -1,25 +1,25 @@
 (defn sys:monster-ai ()
   (let
-    player (ecs-fetch 'player)
-    gamemap (ecs-fetch 'map)
-    player-pos (get-cmp player Position)
+    player (ecs:fetch 'player)
+    gamemap (ecs:fetch 'map)
+    player-pos (ecs:get-cmp player Position)
     player-idx (.xy-idx gamemap [player-pos 'x] [player-pos 'y]))
 
-  (for (e (viewshed pos monster name)) in (query Viewshed Position Monster Name)
+  (for (e (viewshed pos monster name)) in (ecs:query Viewshed Position Monster Name)
     (let visible-tiles (arr ..(map (fn1 (.xy-idx gamemap [_ 'x] [_ 'y])) [viewshed 'visible-tiles])))
 
     ; if the player is in view, set a destination to move towards them
     (when (arr-contains? visible-tiles player-idx)
 
-      (add-cmp e (Destination (x [player-pos 'x]) (y [player-pos 'y])))
+      (ecs:add-cmp e (Destination (x [player-pos 'x]) (y [player-pos 'y])))
       (let distance (dist2d pos player-pos))
       (when (< distance 1.5)
         ; if the player is close, fight them and stop here
-        (add-cmp e (WantsToMelee (target player)))
+        (ecs:add-cmp e (WantsToMelee (target player)))
         (return)))
 
     ; if the monster has a Destination, move towards it
-    (let dest (get-cmp e Destination))
+    (let dest (ecs:get-cmp e Destination))
     (when dest
       (let dest-idx (.xy-idx gamemap [dest 'x] [dest 'y]))
       (let pos-idx (.xy-idx gamemap [pos 'x] [pos 'y]))
@@ -27,7 +27,7 @@
       (let path (.a* gamemap pos-idx dest-idx))
       ; if a path exists, move mob towards player
       ; FIXME: 2 monsters can end on the same tile at the same time
-      (when (and [path 'success] (> (len [path 'steps]) 2))
+      (when (and [path 'success] (> (len [path 'steps]) 1))
         (let new-pos (.idx-xy gamemap (-> path ['steps] [1])))
         (= [viewshed 'dirty] #t)
         (= [pos 'x] [new-pos 'x])

@@ -1,15 +1,15 @@
 (defn sys:melee-combat ()
-  (for (entity (melee name stats)) in (query WantsToMelee Name CombatStats)
+  (for (entity (melee name stats)) in (ecs:query WantsToMelee Name CombatStats)
     (when (> [stats 'hp] 0)
       (let target [melee 'target])
-      (let target-stats (get-cmp target CombatStats))
+      (let target-stats (ecs:get-cmp target CombatStats))
       (when [target-stats 'hp]
-        (let target-name (get-cmp target Name))
+        (let target-name (ecs:get-cmp target Name))
         (let damage (max 0 (- [stats 'power] [target-stats 'defense])))
         (if (eq? damage 0)
           (log:add "{[name 'name]} is unable to hurt {[target-name 'name]}")
           (do
             (log:add "{[name 'name]} hits {[target-name 'name]} for {damage} hp")
             (.new-damage SufferDamage target damage))))))
-  (ecs-clear WantsToMelee))
+  (ecs:clear WantsToMelee))
 

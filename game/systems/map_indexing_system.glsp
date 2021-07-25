@@ -1,16 +1,16 @@
 (defn sys:map-indexing ()
-  (let map (ecs-fetch 'map))
+  (let map (ecs:fetch 'map))
 
   ; reset map data
   (.populate-blocked! map)
   (.clear-indexed-entities! map)
 
   ; iterate all positioned entities
-  (for (entity (pos)) in (query Position)
+  (for (entity (pos)) in (ecs:query Position)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
 
     ; update blocking index, if the entity is blocking
-    (let blocking (get-cmp entity BlocksTile))
+    (let blocking (ecs:get-cmp entity BlocksTile))
     (when blocking
       (.block-tile! map idx))
 
