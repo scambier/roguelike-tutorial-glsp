@@ -1,7 +1,15 @@
 use glsp::prelude::*;
-use std::{collections::HashMap, hash::Hash};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 pub type Entity = i32;
+
+#[inline(always)]
+fn types_to_string(types: Vec<Root<Class>>) -> Vec<String> {
+    types.iter().map(|t| t.to_string()).collect()
+}
 
 /// A simple, naïve (and absolutely unoptimized) ECS world
 pub struct World {
@@ -15,8 +23,8 @@ impl World {
         glsp::bind_rfn("World", &World::new)?;
         glsp::RClassBuilder::<World>::new()
             .met("add-entity", &World::add_entity)
-            .met("get-entities", &World::get_entities)
-            .met("get-cmp", &World::get_components)
+            .met("get-entities", &World::get_entities_glsp)
+            .met("get-cmp", &World::get_components_glsp)
             .met("add-cmp", &World::add_components)
             .met("clear-cmp", &World::clear_component)
             .met("query", &World::query)
@@ -49,20 +57,29 @@ impl World {
         }
     }
 
-    fn get_entities(&self, types: Vec<Root<Class>>) -> Vec<Entity> {
+    fn get_entities_glsp(&self, types: Vec<Root<Class>>) -> HashSet<Entity> {
+        self.get_entities(&types_to_string(types))
+    }
+
+    fn get_entities(&self, types: &Vec<String>) -> HashSet<Entity> {
         // let copy = types.to_vec();
         self.entities
             .keys()
             .filter(|&e| {
                 types
                     .iter()
-                    .all(|t| self.entities.get(e).unwrap().contains_key(&t.to_string()))
+                    .all(|t| self.entities.get(e).unwrap().contains_key(t))
             })
-            .cloned()
-            .collect::<Vec<_>>()
+            .copied()
+            .collect()
     }
 
-    fn get_component(&self, entity: Entity, class: Root<Class>) -> Option<Root<Obj>> {
+    fn get_component_glsp(&self, entity: Entity, class: Root<Class>) -> Option<Root<Obj>> {
+        let class = class.to_string();
+        self.get_component(entity, &class)
+    }
+
+    fn get_component(&self, entity: Entity, class: &String) -> Option<Root<Obj>> {
         match self.entities.get(&entity) {
             Some(entity) => match entity.get(&class.to_string()) {
                 Some(cmp) => Some(cmp.to_owned()),
@@ -71,26 +88,49 @@ impl World {
             None => {
                 println!("Entity {} does not exist anymore", entity);
                 None
-            },
+            }
         }
     }
 
-    fn get_components(&self, entity: Entity, types: Vec<Root<Class>>) -> Vec<Option<Root<Obj>>> {
+    fn get_components_glsp(
+        &self,
+        entity: Entity,
+        types: Vec<Root<Class>>,
+    ) -> Vec<Option<Root<Obj>>> {
+        let types = types_to_string(types);
+        self.get_components(entity, &types)
+    }
+
+    fn get_components(&self, entity: Entity, types: &Vec<String>) -> Vec<Option<Root<Obj>>> {
         types
             .iter()
-            .map(|t| self.get_component(entity, t.to_owned()))
+            .map(|t| self.get_component(entity, &t))
             .collect()
     }
 
     fn query(&self, types: Vec<Root<Class>>) -> Vec<(Entity, Vec<Root<Obj>>)> {
-        let entities = self.get_entities(types.clone());
+        let types = types_to_string(types);
+        let entities = self.get_entities(&types);
+        // entities
+        //     .iter()
+        //     .map(|e| {
+        //         (
+        //             *e,
+        //             self.get_components(*e, &types)
+        //                 .iter()
+        //                 .map(|cmp| cmp.to_owned().unwrap())
+        //                 .collect::<Vec<_>>(),
+        //         )
+        //     })
+        // .collect()
+
         let mut data = vec![];
         for e in entities {
             data.push((
                 e,
-                self.get_components(e, types.clone())
+                self.get_components(e, &types)
                     .iter()
-                    .map(|c| c.to_owned().unwrap())
+                    .map(|cmp| cmp.to_owned().unwrap())
                     .collect(),
             ))
         }
