@@ -12,12 +12,18 @@ mod map;
 mod tile;
 mod utils;
 
+use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
 use api::GlspCommand;
 use bracket_lib::prelude::*;
 use glsp_interpreter::*;
+use lazy_static::lazy_static;
 use num_traits::FromPrimitive;
+use std::{sync::Mutex, time::UNIX_EPOCH};
 
-use crate::{ecs::World, keycodes::StrKeyCode, map::Map};
+lazy_static! {
+    pub static ref RNG_SEED: Mutex<u64> = Mutex::new(UNIX_EPOCH.elapsed().unwrap().as_secs());
+    pub static ref RNG: Mutex<RandomNumberGenerator> = Mutex::new(RandomNumberGenerator::new());
+}
 
 const WIDTH: i32 = 80;
 const HEIGHT: i32 = 45;

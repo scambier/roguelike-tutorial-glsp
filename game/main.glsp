@@ -60,7 +60,7 @@
     (let (x y) (.center room))
     (let name)
     (let glyph)
-    (match (.roll-dice :rng 1 2)
+    (match (rng:dice 1 2)
       (1 (= name "Goblin") (= glyph \g))
       (_ (= name "Orc") (= glyph \o)))
     (ecs:spawn

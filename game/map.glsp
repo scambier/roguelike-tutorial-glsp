@@ -5,10 +5,10 @@
 
   (forn (_ 0 max-rooms)
     (let
-      w (.range :rng min-size max-size)
-      h (.range :rng min-size max-size)
-      x (.roll-dice :rng 1 (- [map 'width] w 1))
-      y (.roll-dice :rng 1 (- [map 'height] h 1))
+      w (rng:range min-size max-size)
+      h (rng:range min-size max-size)
+      x (rng:dice 1 (- [map 'width] w 1))
+      y (rng:dice 1 (- [map 'height] h 1))
       new-room (Rect x y w h)
       ok #t)
 
@@ -23,7 +23,7 @@
           (new-x new-y) (.center new-room)
           (prev-x prev-y) (.center (last-item rooms)))
 
-        (if (eq? (.range :rng 0 2) 1)
+        (if (eq? (rng:range 0 2) 1)
           (do
             (.apply-horizontal-tunnel map prev-x new-x prev-y)
             (.apply-vertical-tunnel map prev-y new-y new-x))

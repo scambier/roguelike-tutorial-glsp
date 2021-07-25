@@ -98,10 +98,18 @@ impl GlspInterpreter {
             glsp::bind_rfn("Color:u8", &RGB::from_u8)?;
 
             // rng
-            glsp::RClassBuilder::<RandomNumberGenerator>::new()
-                .met("roll-dice", &RandomNumberGenerator::roll_dice)
-                .met("range", &RandomNumberGenerator::range::<i32>)
-                .build();
+            glsp::bind_rfn("rng:dice", &|n, die_type| {
+                let mut rng = RNG.lock().unwrap();
+                rng.roll_dice(n, die_type)
+            })?;
+            glsp::bind_rfn("rng:range", &|min: i32, max: i32| {
+                let mut rng = RNG.lock().unwrap();
+                rng.range(min, max)
+            })?;
+            glsp::bind_rfn("rng:rangef", &|min: f32, max: f32| {
+                let mut rng = RNG.lock().unwrap();
+                rng.range(min, max)
+            })?;
             glsp::bind_global::<_, RandomNumberGenerator>(":rng", RandomNumberGenerator::new())?;
 
             // Call the `(defn main:init)` function

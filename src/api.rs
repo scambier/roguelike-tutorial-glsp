@@ -1,4 +1,4 @@
-use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR};
+use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR,};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 
