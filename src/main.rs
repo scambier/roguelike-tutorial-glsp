@@ -30,7 +30,7 @@ const HEIGHT: i32 = 45;
 const BG_COLOR: (u8, u8, u8) = GREY15;
 
 const CONSOLE_BG: usize = 0;
-const CONSOLE_FG: usize = 1; // Transparent background
+const CONSOLE_NO_BG: usize = 1; // Transparent background
 const CONSOLE_UI: usize = 2;
 const CONSOLE_MOUSE: usize = 3;
 
@@ -41,7 +41,7 @@ struct State {
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.interpreter.tick(ctx);
-        ctx.set_active_console(CONSOLE_FG);
+        ctx.set_active_console(CONSOLE_NO_BG);
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR};
+use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR, CONSOLE_BG, CONSOLE_NO_BG};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 
@@ -120,15 +120,27 @@ pub fn set_char_glsp(
     bg: Option<&RGB>,
     console: Option<usize>,
 ) {
+    let console = match console {
+        Some(c) => c,
+        // If the console is not set,
+        // set it depending on the bg value
+        None => {
+            if bg.is_none() {
+                // Transparent bg
+                CONSOLE_NO_BG
+            } else {
+                // Opaque bg
+                CONSOLE_BG
+            }
+        }
+    };
     let bg = &match bg {
         Some(bg) => *bg,
         None => RGB::named(BG_COLOR),
     };
-    let (glyph, console) = match (glyph, console) {
-        (Val::Int(g), None) => (g as u16, 0),
-        (Val::Int(g), Some(c)) => (g as u16, c),
-        (Val::Char(g), None) => (to_cp437(g), 1),
-        (Val::Char(g), Some(c)) => (to_cp437(g), c),
+    let glyph = match glyph {
+        Val::Int(g) => g as u16,
+        Val::Char(g) => to_cp437(g),
         _ => {
             panic!("invalid glyph")
         }
