@@ -1,4 +1,5 @@
 (defstruct Renderable
+  ;; set bg to #n for a transparent background
   glyph fg bg)
 
 (defstruct Position
@@ -45,3 +46,7 @@
 
 (defstruct Destination
   x y)
+
+(defstruct Item)
+
+(defstruct Potion heal-amount)

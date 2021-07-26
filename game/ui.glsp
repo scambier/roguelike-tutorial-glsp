@@ -52,7 +52,6 @@
           (inc! y))
         (print [arrow-pos 'x] [arrow-pos 'y] "─╢" white grey)))))
 
-(let min-fps 2000)
 (let max-fps 0)
 (let total-fps 0)
 (let count-fps 0)
@@ -78,11 +77,9 @@
   ;; fps
   (when (> :fps max-fps)
     (= max-fps (int :fps)))
-  (when (and (< :fps min-fps) (> :fps 100))
-    (= min-fps (int :fps)))
   (inc! count-fps)
   (inc! total-fps :fps)
-  (print 0 0 "{(int :fps)}fps | {min-fps}-{max-fps} | avg {(int (/ total-fps count-fps))}")
+  (print 0 0 "{(int :fps)}fps | max {max-fps} | avg {(int (/ total-fps count-fps))}")
 
   (let seed "seed: {rng:seed}")
   (print (- :width (len seed)) 0 seed))
