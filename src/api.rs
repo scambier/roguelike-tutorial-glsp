@@ -1,4 +1,4 @@
-use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR,};
+use crate::{keycodes::StrKeyCode, utils::ss_idx, BG_COLOR};
 use bracket_lib::prelude::*;
 use glsp::prelude::*;
 
@@ -79,6 +79,12 @@ pub fn bind_geometry() -> GResult<()> {
             let center = rect.center();
             vec![center.x, center.y]
         })
+        .prop_get("x1", &|rect: &Rect| rect.x1)
+        .prop_get("x2", &|rect: &Rect| rect.x2)
+        .prop_get("y1", &|rect: &Rect| rect.y1)
+        .prop_get("y2", &|rect: &Rect| rect.y2)
+        .prop_get("width", &Rect::width)
+        .prop_get("height", &Rect::height)
         .build();
 
     // Point

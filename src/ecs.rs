@@ -1,8 +1,11 @@
+use bracket_lib::prelude::console;
 use glsp::prelude::*;
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
 };
+
+use crate::gamelog::GameLog;
 
 pub type Entity = i32;
 
@@ -51,9 +54,21 @@ impl World {
     }
 
     fn add_components(&mut self, entity: Entity, components: Vec<Root<Obj>>) {
-        let registered = self.entities.get_mut(&entity).unwrap();
-        for c in components {
-            registered.insert(c.class().to_string(), c);
+        let registered = self.entities.get_mut(&entity);
+        match registered {
+            Some(registered) => {
+                for c in components {
+                    registered.insert(c.class().to_string(), c);
+                }
+            }
+            None => {
+                let message = format!(
+                    "Could not add components - entity {:} does not exist",
+                    entity
+                );
+                console::log(&message);
+                GameLog::rglobal_add(&message);
+            }
         }
     }
 

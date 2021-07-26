@@ -4,6 +4,7 @@
 (load "game/map.glsp")
 (load "game/player.glsp")
 (load "game/ui.glsp")
+(load "game/spawner.glsp")
 
 
 (defclass GameState
@@ -30,7 +31,7 @@
 ;; entry point
 ;;
 (defn main:init ()
-  ;(rng:seed= "lorem")
+  (rng:seed= "lorem")
   (log:add "Good luck.")
   (ctx:scanlines! #t)
   ;(ctx:burn! (Color 1 1 1))
@@ -45,33 +46,13 @@
   ; init the player
   (let rooms (.get-rooms map))
   (let (px py) (.center [rooms 0]))
-  (let player
-    (ecs:spawn
-      (Player)
-      (Name (name "Player"))
-      (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg (Color 0 0 0)))
-      (Position (x px) (y py))
-      (Viewshed (visible-tiles (arr)) (range 9) (dirty #t))
-      (CombatStats (max-hp 30) (hp 30) (defense 2) (power 5))))
+  (let player (spawner:player px py))
   (ecs:set 'player player) ; save a global ref
 
 
   ; init the monsters
   (for (i room) in (enumerate (skip 1 rooms))
-    (let (x y) (.center room))
-    (let name)
-    (let glyph)
-    (match (rng:dice 1 2)
-      (1 (= name "Goblin") (= glyph \g))
-      (_ (= name "Orc") (= glyph \o)))
-    (ecs:spawn
-      (Position x y)
-      (Renderable (glyph glyph) (fg (Color 1 0 0)) (bg (Color 0 0 0)))
-      (Viewshed (visible-tiles (arr)) (range 8) (dirty #t))
-      (Name (name "{name} {i}"))
-      (Monster)
-      (BlocksTile)
-      (CombatStats (max-hp 16) (hp 16) (defense 1) (power 4)))))
+    (spawner:room room)))
 
 
 ;;

@@ -85,7 +85,7 @@ impl GlspInterpreter {
 
             // log
             glsp::add_rglobal(GameLog::new());
-            glsp::bind_rfn("log:add", &GameLog::add)?;
+            glsp::bind_rfn("log:add", &GameLog::add::<Val>)?;
             glsp::bind_rfn("log:get", &GameLog::get_messages)?;
 
             // api
