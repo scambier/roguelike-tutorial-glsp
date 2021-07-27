@@ -9,7 +9,7 @@
     (Name (name "Player"))
     (Renderable (glyph \@)  (fg (Color 1 1 1)) (bg #n))
     (Position (x x) (y y))
-    (Viewshed (visible-tiles (arr)) (range 9) (dirty #t))
+    (Viewshed (visible-tiles (arr)) (range 80) (dirty #t))
     (CombatStats (max-hp 30) (hp 30) (defense 2) (power 5))))
 
 

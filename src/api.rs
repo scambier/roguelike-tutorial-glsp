@@ -61,6 +61,7 @@ pub fn bind_utils() -> GResult<()> {
     glsp::bind_rfn("set_bg", &set_bg_glsp)?;
     glsp::bind_rfn("exit", &exit)?;
     glsp::bind_rfn("ss-idx", &ss_idx)?;
+    glsp::bind_rfn("console:log", &|v: Val| console::log(v.to_string()))?;
 
     // Screen
     glsp::bind_rfn("ctx:scanlines!", &set_scanlines)?;

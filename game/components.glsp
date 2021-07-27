@@ -49,4 +49,12 @@
 
 (defstruct Item)
 
-(defstruct Potion heal-amount)
+(defstruct Potion
+  heal-amount)
+
+(defstruct InBackpack
+  owner)        ;; entity
+
+(defstruct WantsToPickupItem
+  collected-by  ;; entity
+  item)         ;; entity

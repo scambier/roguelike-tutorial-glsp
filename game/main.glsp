@@ -31,7 +31,7 @@
 ;; entry point
 ;;
 (defn main:init ()
-  (rng:seed= "lorem")
+  (rng:seed= "foobar")
   (log:add "Good luck.")
   (ctx:scanlines! #t)
   ;(ctx:burn! (Color 1 1 1))
