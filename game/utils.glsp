@@ -49,6 +49,9 @@
     [res 0]
     res))
 
+(defn ecs:del-cmp (entity type)
+  (.del-cmp :world entity type))
+
 (defn ecs:add-cmp (entity ..components)
   (.add-cmp :world entity (arr ..components)))
 

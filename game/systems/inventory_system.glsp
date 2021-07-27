@@ -1,0 +1,9 @@
+(defn sys:inventory ()
+  (let player (ecs:fetch 'player))
+  (for (entity (pickup name)) in (ecs:query WantsToPickupItem Name)
+    (ecs:del-cmp entity Position)
+    (ecs:add-cmp entity (InBackpack (owner [pickup 'collected-by])))
+    (when (== [pickup 'collected-by] player)
+      (log:add "You picked up {[name 'name]}")))
+  
+  (ecs:clear-cmp WantsToPickupItem))

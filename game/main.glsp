@@ -18,6 +18,7 @@
         (sys:damage)        ; apply damages
         (sys:damage:clean-dead) ; dipose of bodies
         (sys:map-indexing)  ; update the map's state
+        (sys:inventory)
         (@enab! 'Paused)))
 
     ; what's happening when we wait for an input

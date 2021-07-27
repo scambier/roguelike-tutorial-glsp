@@ -29,6 +29,7 @@ impl World {
             .met("get-entities", &World::get_entities_glsp)
             .met("get-cmp", &World::get_components_glsp)
             .met("add-cmp", &World::add_components)
+            .met("del-cmp", &World::remove_component)
             .met("clear-cmp", &World::clear_component)
             .met("query", &World::query)
             .met("save", &World::save)

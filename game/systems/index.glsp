@@ -4,3 +4,4 @@
 (load "game/systems/map_indexing_system.glsp")
 (load "game/systems/melee_combat_system.glsp")
 (load "game/systems/damage_system.glsp")
+(load "game/systems/inventory_system.glsp")
