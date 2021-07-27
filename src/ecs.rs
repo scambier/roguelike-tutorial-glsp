@@ -72,11 +72,11 @@ impl World {
         }
     }
 
-    fn get_entities_glsp(&self, types: Vec<Root<Class>>) -> HashSet<Entity> {
+    fn get_entities_glsp(&self, types: Vec<Root<Class>>) -> Vec<Entity> {
         self.get_entities(&types_to_string(types))
     }
 
-    fn get_entities(&self, types: &Vec<String>) -> HashSet<Entity> {
+    fn get_entities(&self, types: &Vec<String>) -> Vec<Entity> {
         // let copy = types.to_vec();
         self.entities
             .keys()
