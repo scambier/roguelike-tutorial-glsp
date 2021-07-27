@@ -60,16 +60,16 @@
   (let spawned-monsters (arr))
   (let spawned-items (arr))
 
-  (let num-monsters (- (rng:dice 1 (+ MAX-MONSTERS 2)) 3))
-  (let num-items (- (rng:dice 1 (+ MAX-ITEMS 2)) 3))
+  (let num-monsters (rng:range 0 (+ MAX-MONSTERS 1)))
+  (let num-items (rng:range 0 (+ MAX-ITEMS 1)))
 
   ;; try random positions to place monsters
   ;; while the new position isn't free
   (forn (i 0 num-monsters)
     (let added #f)
     (while (not added)
-      (let x (+ [room 'x1] (rng:dice 1 [room 'width])))
-      (let y (+ [room 'y1] (rng:dice 1 [room 'height])))
+      (let x (+ [room 'x1] (rng:dice 1 (- [room 'width] 1))))
+      (let y (+ [room 'y1] (rng:dice 1 (- [room 'height] 1))))
       (let idx (.xy-idx map x y))
       (unless (arr-contains? spawned-monsters idx)
         (push! spawned-monsters idx)
@@ -79,12 +79,14 @@
   (forn (i 0 num-items)
     (let added #f)
     (while (not added)
-      (let x (+ [room 'x1] (rng:dice 1 [room 'width])))
-      (let y (+ [room 'y1] (rng:dice 1 [room 'height])))
+      (let x (+ [room 'x1] (rng:dice 1 (- [room 'width] 1))))
+      (let y (+ [room 'y1] (rng:dice 1 (- [room 'height] 1))))
       (let idx (.xy-idx map x y))
       (unless (arr-contains? spawned-items idx)
         (push! spawned-items idx)
         (= added #t))))
+
+  (console:log "generating {(len spawned-monsters)} monsters and {(len spawned-items)} potions")
 
   ;; spawn the monsters
   (for idx in spawned-monsters

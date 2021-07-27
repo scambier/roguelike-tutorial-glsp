@@ -3,7 +3,7 @@
   (let player (ecs:fetch 'player))
 
   (for (entity (pos viewshed)) in (ecs:query Position Viewshed)
-    (when (eq? [viewshed 'dirty] #t)
+    (when [viewshed 'dirty]
       (= [viewshed 'dirty] #f)
 
       ; calculate the current viewshed
@@ -16,7 +16,7 @@
         [viewshed 'visible-tiles]))
 
     ; if the current entity is the player,
-    (when (eq? player entity)
+    (when (== player entity)
       ; clear current visible tiles
       (.clear-visible-tiles! map)
       ; apply the viewshed on the map

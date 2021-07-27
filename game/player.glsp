@@ -35,7 +35,7 @@
   ; if an enemy is on the destination tile, attack it
   (for e in (.entities-at map destination)
     (let combat (ecs:get-cmp e CombatStats))
-    (when (and combat (neq? player e))
+    (when (and combat (!= player e))
       (ecs:add-cmp player (WantsToMelee (target e)))
       (return)))
 

@@ -12,7 +12,7 @@
   (for (entity (stats)) in (ecs:query CombatStats)
     (when (< [stats 'hp] 1)
       (let name (ecs:get-cmp entity Name))
-      (if (eq? player entity)
+      (if (== player entity)
         (log:add "yer dead")
         (do
           (log:add "{[name 'name]} is dead")

@@ -9,6 +9,9 @@
 (defn neq? (..args)
   (not (eq? ..args)))
 
+(defn != (..args)
+  (not (== ..args)))
+
 ; like `(position haystack needle)` but without the callback
 (defn index-of (haystack needle)
   (position haystack (fn (e) (eq? e needle))))
@@ -42,7 +45,7 @@
 
 (defn ecs:get-cmp (entity ..components)
   (let res (.get-cmp :world entity (arr ..components)))
-  (if (eq? (len res) 1)
+  (if (== (len res) 1)
     [res 0]
     res))
 

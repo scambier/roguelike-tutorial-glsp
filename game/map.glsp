@@ -23,7 +23,7 @@
           (new-x new-y) (.center new-room)
           (prev-x prev-y) (.center (last-item rooms)))
 
-        (if (eq? (rng:range 0 2) 1)
+        (if (== (rng:range 0 2) 1)
           (do
             (.apply-horizontal-tunnel map prev-x new-x prev-y)
             (.apply-vertical-tunnel map prev-y new-y new-x))

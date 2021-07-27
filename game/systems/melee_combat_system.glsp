@@ -6,7 +6,7 @@
       (when [target-stats 'hp]
         (let target-name (ecs:get-cmp target Name))
         (let damage (max 0 (- [stats 'power] [target-stats 'defense])))
-        (if (eq? damage 0)
+        (if (== damage 0)
           (log:add "{[name 'name]} is unable to hurt {[target-name 'name]}")
           (do
             (log:add "{[name 'name]} hits {[target-name 'name]} for {damage} hp")

@@ -16,8 +16,8 @@
   (for (entity (name pos)) in (ecs:query Name Position)
     (let idx (.xy-idx map [pos 'x] [pos 'y]))
     (when (and
-            (eq? [pos 'x] [:mouse 0])
-            (eq? [pos 'y] [:mouse 1])
+            (== [pos 'x] [:mouse 0])
+            (== [pos 'y] [:mouse 1])
             (.visible? map idx))
       (push! tooltip [name 'name])))
 
@@ -28,7 +28,7 @@
         (= width (len s))))
     (inc! width 2)
 
-    (if (> [:mouse 0] (- :width 10))
+    (if (> [:mouse 0] (- :width (+ width 2)))
       (do
         (let arrow-pos (Point (- [:mouse 0] 2) [:mouse 1]))
         (let left-x (- [:mouse 0] width))
