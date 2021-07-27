@@ -29,7 +29,7 @@ impl World {
             .met("get-entities", &World::get_entities_glsp)
             .met("get-cmp", &World::get_components_glsp)
             .met("add-cmp", &World::add_components)
-            .met("del-cmp", &World::remove_component)
+            .met("del-cmp", &World::remove_component_glsp)
             .met("clear-cmp", &World::clear_component)
             .met("query", &World::query)
             .met("save", &World::save)
@@ -161,7 +161,11 @@ impl World {
         self.resources.get(&key).unwrap().to_owned()
     }
 
-    fn remove_component(&mut self, entity: Entity, cmp_type: &Root<Class>) {
+    fn remove_component_glsp(&mut self, entity: Entity, cmp_type: Root<Class>) {
+        self.remove_component(entity, &cmp_type.to_string())
+    }
+
+    fn remove_component(&mut self, entity: Entity, cmp_type: &String) {
         let k = cmp_type.to_string();
         match self.entities.get_mut(&entity) {
             Some(components) => {
@@ -181,7 +185,7 @@ impl World {
             .map(|(e, _)| *e)
             .collect::<Vec<Entity>>();
         for e in to_clean {
-            self.remove_component(e, &cmp_type);
+            self.remove_component(e, &k);
         }
     }
 

@@ -1,31 +1,4 @@
-; input manager
-; returns #t if a key was pressed, #f otherwise
-(defn player-input ()
-  (let
-    player (ecs:fetch 'player)
-    pos (ecs:get-cmp player Position)
-    map (ecs:fetch 'map))
-
-  (match :pressed-key
-    ; cardinals
-    ((or "up" "numpad8" "k") (try-move-player map 0 -1))
-    ((or "down" "numpad2" "j") (try-move-player map 0 1))
-    ((or "left" "numpad4" "h") (try-move-player map -1 0))
-    ((or "right" "numpad6" "l") (try-move-player map 1 0))
-    ; diagonals
-    ((or "numpad7" "u") (try-move-player map -1 -1))
-    ((or "numpad9" "y") (try-move-player map 1 -1))
-    ((or "numpad1" "b") (try-move-player map -1 1))
-    ((or "numpad3" "n") (try-move-player map 1 1))
-    ; wait
-    ((or "numpad5") (try-move-player map 0 0))
-
-    ("escape" (exit))
-    (_ (return #f)))
-  #t)
-
-
-(defn try-move-player (map dx dy)
+(let-fn try-move-player (map dx dy)
   (let
     player (ecs:fetch 'player)
     map (ecs:fetch 'map)
@@ -44,3 +17,51 @@
     (= [pos 'x] (min (- [map 'width] 1) (max 0 (+ [pos 'x] dx))))
     (= [pos 'y] (min (- [map 'height] 1) (max 0 (+ [pos 'y] dy)))))
   (= [viewshed 'dirty] #t))
+
+
+;; Get an item on the floor
+(let-fn get-item ()
+  (let player (ecs:fetch 'player))
+  (let player-pos (ecs:get-cmp player Position))
+  (let target-item)
+  (for (e (pos item)) in (ecs:query Position Item)
+    (when (eq? pos player-pos)
+      (= target-item e)))
+
+  (if target-item
+    (do
+      (let pickup (WantsToPickupItem (collected-by player) (item target-item)))
+      (ecs:add-cmp target-item pickup))
+    (log:add "Nothing to pickup here")))
+
+
+;; Input manager
+;; Returns #t if a key was pressed, #f otherwise
+(defn player-input ()
+  (let
+    player (ecs:fetch 'player)
+    pos (ecs:get-cmp player Position)
+    map (ecs:fetch 'map))
+
+  (match :pressed-key
+    ; cardinals
+    ((or "up" "numpad8" "k") (try-move-player map 0 -1))
+    ((or "down" "numpad2" "j") (try-move-player map 0 1))
+    ((or "left" "numpad4" "h") (try-move-player map -1 0))
+    ((or "right" "numpad6" "l") (try-move-player map 1 0))
+    ; diagonals
+    ((or "numpad7" "y") (try-move-player map -1 -1))
+    ((or "numpad9" "u") (try-move-player map 1 -1))
+    ((or "numpad1" "b") (try-move-player map -1 1))
+    ((or "numpad3" "n") (try-move-player map 1 1))
+    ; wait
+    ((or "numpad5") (try-move-player map 0 0))
+    ; pickup
+    ((or "g") (get-item))
+
+    ("escape" (exit))
+    (_ (return #f)))
+  #t)
+
+
+

@@ -86,8 +86,6 @@
         (push! spawned-items idx)
         (= added #t))))
 
-  (console:log "generating {(len spawned-monsters)} monsters and {(len spawned-items)} potions")
-
   ;; spawn the monsters
   (for idx in spawned-monsters
     (let pos (.idx-xy map idx))

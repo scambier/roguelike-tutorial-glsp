@@ -3,7 +3,9 @@
   glyph fg bg)
 
 (defstruct Position
-  x y)
+  x y
+  (met op-eq? (b)
+    (and (== @x [b 'x]) (== @y [b 'y]))))
 
 (defstruct Enemy
   x y)

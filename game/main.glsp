@@ -29,7 +29,7 @@
           (@enab! 'Running))))))
 
 ;;
-;; entry point
+;; Entry point
 ;;
 (defn main:init ()
   (rng:seed= "foobar")

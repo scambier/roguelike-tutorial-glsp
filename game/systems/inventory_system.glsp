@@ -6,4 +6,4 @@
     (when (== [pickup 'collected-by] player)
       (log:add "You picked up {[name 'name]}")))
   
-  (ecs:clear-cmp WantsToPickupItem))
+  (ecs:clear WantsToPickupItem))
